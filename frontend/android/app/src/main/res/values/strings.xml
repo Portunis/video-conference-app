@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">start-template</string>
+    <string name="title_activity_main">start-template</string>
+    <string name="package_name">com.redramkavc.app</string>
+    <string name="custom_url_scheme">com.redramkavc.app</string>
+</resources>
