@@ -1,7 +1,26 @@
 <template>
   <div class="room">
-    <h1>Видеозвонок в комнате: {{ roomId }}</h1>
-    Количество участников {{Object.values(remoteStreams).length}}
+    <div class="room__header" v-if="inCall">
+      <div class="room__header-controls" v-if="isOneRemoteUser">
+        <div class="room__header-control">
+        <ChevronLeft
+            :width="12"
+            :height="12"
+        />
+        </div>
+        <p class="room__header-user"  v-for="(stream, userId) in remoteStreams">{{ userId }}</p>
+      </div>
+      <div class="room__header-controls">
+        <div class="room__header-control">
+          <SwitchCamera
+              :width="12"
+              :height="12"
+          />
+        </div>
+      </div>
+    </div>
+<!--    <h1>Видеозвонок в комнате: {{ roomId }}</h1>-->
+<!--    Количество участников {{Object.values(remoteStreams).length + 1}}-->
     <div class="room__content" v-if="!inCall">
       <LottieAnimation
           class="room__content-loader"
@@ -10,61 +29,50 @@
       />
       <Button class="mt-5" @click="joinCall">Присоединиться к звонку</Button>
     </div>
-    <div class="video-container mt-5" v-show="inCall" :style="gridStyle" >
-      <!-- Local Video -->
+    <div class="video-container mt-5" v-show="inCall">
       <div class="video local-video">
-          <video ref="localVideo" autoplay muted  playsinline></video>
+        <video ref="localVideo" autoplay muted playsinline></video>
       </div>
-
-      <!-- Remote Videos -->
       <div
-            v-for="(stream, userId) in remoteStreams"
-            :key="userId"
-            class="video"
-        >
-          <video :id="'video-' + userId" autoplay  muted playsinline :srcObject="stream"  :style="remoteVideoStyle"></video>
-        <div v-if="inCall" class="controls-video-remote">
-          <div @click="toggleRemoteAudio(userId)">
-            <MicOff v-if="remoteAudioMuted[userId]" class="icon" />
-            <Mic v-if="!remoteAudioMuted[userId]" class="icon" />
-          </div>
-        </div>
-        </div>
+          v-for="(stream, userId) in remoteStreams"
+          :key="userId"
+          class="video"
+          :class="{'remote-video-one': isOneRemoteUser}"
+      >
+        <video
+            :id="'video-' + userId"
+            autoplay
+            playsinline
+            :srcObject="stream"
+        />
 
+<!--        <div v-if="inCall" class="controls-video-remote">-->
+<!--          <div @click="toggleRemoteAudio(userId)">-->
+<!--            <MicOff v-if="remoteAudioMuted[userId]" class="icon" />-->
+<!--            <Mic v-if="!remoteAudioMuted[userId]" class="icon" />-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
+    </div>
 
     <div v-if="inCall" class="controls-video">
       <div class="controls-video__header">
         <div @click="toggleLocalVideo" class="icon">
           <Video v-if="!isLocalVideoMuted" color="#fff" />
-          <VideoOff v-if="isLocalVideoMuted" color="#fff"  />
-        </div>
-        <div @click="toggleLocalVideo" class="icon">
-          <Video v-if="!isLocalVideoMuted" color="#fff" />
-          <VideoOff v-if="isLocalVideoMuted" color="#fff"  />
+          <VideoOff v-if="isLocalVideoMuted" color="#fff" />
         </div>
         <div @click="toggleLocalAudio" class="icon">
           <MicOff v-if="isLocalAudioMuted" color="#fff" />
           <Mic v-if="!isLocalAudioMuted" color="#fff" />
         </div>
+        <div  class="icon">
+          <MessageCircle color="#fff"/>
+        </div>
+        <div  class="icon">
+          <Settings color="#fff"/>
+        </div>
         <div @click="leaveCall" class="icon icon--red">
-          <X  color="#fff"/>
-        </div>
-      </div>
-      <div class="controls-video__footer" v-if="false">
-        <div class="controls-video__item--full" @click="toggleLocalVideo">
-          <div>
-            <Video v-if="!isLocalVideoMuted" color="#fff" :width="21"/>
-            <VideoOff v-if="isLocalVideoMuted" color="#fff"  :width="21"/>
-          </div>
-          <p>Camera off</p>
-        </div>
-        <div class="controls-video__item--full" @click="toggleLocalVideo">
-          <div>
-            <Video v-if="!isLocalVideoMuted" color="#fff" :width="21"/>
-            <VideoOff v-if="isLocalVideoMuted" color="#fff"  :width="21"/>
-          </div>
-          <p>Camera off</p>
+          <X color="#fff" />
         </div>
       </div>
     </div>
@@ -72,10 +80,10 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import {computed, onMounted, onUnmounted, ref } from 'vue';
 import { io } from 'socket.io-client';
 import { Button } from "@/shared/ui/button";
-import { Video, VideoOff, Mic, MicOff, X } from 'lucide-vue-next';
+import { Video, VideoOff, Mic, MicOff, X, MessageCircle,Settings,SwitchCamera,ChevronLeft } from 'lucide-vue-next';
 import { LottieAnimation } from "lottie-web-vue";
 import LoaderVideo from "@/shared/lottie/loader-video.json";
 
@@ -99,28 +107,20 @@ let localStream = null;
 let peerConnections = {};
 let remoteStreams = ref({});
 let remoteAudioMuted = ref({});
-let processedOffers = ref({});
 
 const inCall = ref(false);
 const isLocalVideoMuted = ref(false);
 const isLocalAudioMuted = ref(false);
-const orientation = ref('portrait');
 
 
-const gridStyle = computed(() => {
-  const count = Object.keys(remoteStreams.value).length;
-  if (count === 1) {
-    return { gridTemplateColumns: "1fr", gridTemplateRows: "1fr" };
-  } else if (count === 2) {
-    return { gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr" };
-  } else if (count <= 4) {
-    return { gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr" };
-  } else { return { gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" };}
+
+
+
+
+const isOneRemoteUser = computed(() => {
+  const remote = Object.values(remoteStreams.value).length
+  return remote === 1;
 })
-
-
-
-
 
 const peerConnectionConfig = {
   iceServers: [
@@ -152,8 +152,9 @@ const onMessageRecieve = (data) => {
   if (data.displayName && data.dest == 'all') {
     console.log('Подключился ', data.displayName)
     // set up peer connection object for a newcomer peer
+
     setUpPeer(peerUuid, data.displayName);
-    socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: peerUuid, roomId: props.roomId  });
+    socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: peerUuid, roomId: props.roomId, userName: props.userName  });
 
   } else if (data.displayName && data.dest == props.userId) {
     // initiate call if we are the newcomer peer
@@ -191,7 +192,7 @@ const setUpPeer = (peerUuid, displayName, initCall = false) => {
 
 const gotIceCandidate = (event, peerUuid) => {
   if (event.candidate != null) {
-    socket.emit('webrtcSend', { ice: event.candidate, uuid: props.userId, dest: peerUuid, roomId: props.roomId  });
+    socket.emit('webrtcSend', { ice: event.candidate, uuid: props.userId, dest: peerUuid, roomId: props.roomId, userName: props.userName  });
   }
 }
 
@@ -199,13 +200,13 @@ const gotIceCandidate = (event, peerUuid) => {
 const createdDescription = (description, peerUuid) => {
   console.log(`got description, peer ${peerUuid}`);
   peerConnections[peerUuid].pc.setLocalDescription(description).then(() => {
-    socket.emit('webrtcSend', { sdp: peerConnections[peerUuid].pc.localDescription, uuid: props.userId, dest: peerUuid, roomId: props.roomId  });
+    socket.emit('webrtcSend', { sdp: peerConnections[peerUuid].pc.localDescription, uuid: props.userId, dest: peerUuid, roomId: props.roomId,  userName: props.userName  });
   }).catch(errorHandler);
 }
 
-const gotRemoteStream = (event, peerUuid) => {
+const gotRemoteStream = (event, peerUuid,userName) => {
   console.log(`got remote stream, peer ${peerUuid}`);
-  remoteStreams.value[peerUuid] = event.streams[0];
+  remoteStreams.value[peerUuid] =  event.streams[0];
   remoteAudioMuted.value[peerUuid] = true; // Изначально аудио не отключено
 }
 
@@ -229,7 +230,7 @@ const start = async () => {
   });
   inCall.value = true;
   socket.on('webrtcRecieve', onMessageRecieve);
-  socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: 'all', roomId: props.roomId });
+  socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: 'all', roomId: props.roomId,  userName: props.userName });
 
 
 }
@@ -246,7 +247,7 @@ const joinCall = async () => {
   await startLocalStream();
 
   // Отправляем запрос на присоединение к комнате
-  socket.emit('joinRoom2', { roomId: props.roomId, userId: props.userId });
+  socket.emit('joinRoom2', { roomId: props.roomId, userId: props.userId, userName: props.userName });
 
   setTimeout(() => {
     start()

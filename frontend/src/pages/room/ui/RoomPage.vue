@@ -21,7 +21,7 @@ getUser();
 
 <template>
 <div class="room-page">
-  <RoomConnect :room-id="queryParams.id" :userId="user.userId" :user="user"/>
+  <RoomConnect :room-id="queryParams.id" :userId="user.userId" :userName="user.username"/>
 </div>
 </template>
 

@@ -3,14 +3,13 @@
 
 import { setTheme } from '@/shared/utils/setTheme'
 import { HeaderComponent } from '@/widgets/Header'
-import { SidebarComponent } from '@/widgets/Sidebar'
 
 setTheme()
 </script>
 
 <template>
   <div class="main">
-    <HeaderComponent class="main__header " />
+<!--    <HeaderComponent class="main__header" />-->
     <div class="main__content">
       <router-view></router-view>
     </div>
@@ -23,14 +22,14 @@ $admin-footer-height: 70px;
 $admin-nav-width: 250px;
 
 .main {
-  --spacing: 2rem;
+  --spacing: 20px;
   display: grid;
   height: 100vh;
 
   grid-template-rows:     $admin-header-height 1fr $admin-footer-height;
   grid-template-columns:  $admin-nav-width 1fr;
-  grid-template-areas:    "header header"
-                          "main    main"
+  grid-template-areas:    "main main"
+                          "main main"
                           "main main";
 
   &__header {
@@ -46,12 +45,10 @@ $admin-nav-width: 250px;
   &__content {
     flex: 1;
     grid-area: main;
-    padding: var(--spacing);
-    overflow-y: auto;
-    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    padding-top: 45px;
 
 
     &::-webkit-scrollbar {
