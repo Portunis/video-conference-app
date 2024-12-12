@@ -95,7 +95,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         if (socket.userData) {
-            io.to(data.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
+            io.to(socket.userData.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
         }
         console.log('User disconnected:', socket.id);
     });
