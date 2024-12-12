@@ -50,10 +50,10 @@ const copyToClipboard = async () => {
 <template>
   <Dialog>
     <DialogTrigger as-child>
-      <Button variant="outline">
-        <span class="sr-only">Копировать</span>
+      <div class="copy-button dark:bg-neutral-800">
         <Copy class="w-4 h-4" />
-      </Button>
+      </div>
+
     </DialogTrigger>
     <DialogContent class="max-w-[300px] sm:max-w-md">
       <DialogHeader>
@@ -71,6 +71,7 @@ const copyToClipboard = async () => {
               id="link"
               :default-value="props.url"
               read-only
+              disabled
           />
         </div>
         <Button type="button" size="sm" class="px-3" @click="copyToClipboard">
@@ -88,3 +89,10 @@ const copyToClipboard = async () => {
     </DialogContent>
   </Dialog>
 </template>
+<style lang="scss" scoped>
+.copy-button {
+  border-radius: 50px;
+  padding: 15px;
+  cursor: pointer;
+}
+</style>
