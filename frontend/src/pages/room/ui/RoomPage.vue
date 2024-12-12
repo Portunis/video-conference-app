@@ -26,5 +26,7 @@ getUser();
 </template>
 
 <style scoped lang="scss">
-
+.room-page {
+  height: 100%;
+}
 </style>

@@ -4,6 +4,7 @@
       <div class="room__header-controls" v-if="isOneRemoteUser">
         <div class="room__header-control">
         <ChevronLeft
+            @click="leaveCall"
             :width="12"
             :height="12"
         />
@@ -29,25 +30,17 @@
       />
       <Button class="mt-5" @click="joinCall">Присоединиться к звонку</Button>
     </div>
-    <div class="video-container mt-5" v-show="inCall">
-      <div class="video local-video">
-        <video ref="localVideo" autoplay muted playsinline></video>
-      </div>
-      <!-- LOCAL TEST STYLES -->
-      <!-- <div 
-        class="video"
-        :class="{'remote-video-one': isOneRemoteUser}"
-      >
-        <span class="video__label">{{ 'props.userName' }}</span>
-        <video ref="localVideo" autoplay muted playsinline></video>
-      </div> -->
+    <div  v-show="inCall" class="video local-video">
+      <video ref="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div class="video-container" :class="{ 'video-container--many-remote': !isOneRemoteUser}" v-show="inCall">
       <div
           v-for="(stream, userId) in remoteStreams"
           :key="userId"
-          class="video"
+          class="video video--remote"
           :class="{'remote-video-one': isOneRemoteUser}"
       >
-        <span class="video__label">{{ stream.name }}</span>
+        <span class="video__label" v-if="!isOneRemoteUser">{{ stream.name }}</span>
         <video
             :id="'video-' + userId"
             autoplay
@@ -95,6 +88,7 @@ import { Button } from "@/shared/ui/button";
 import { Video, VideoOff, Mic, MicOff, X, MessageCircle,Settings,SwitchCamera,ChevronLeft } from 'lucide-vue-next';
 import { LottieAnimation } from "lottie-web-vue";
 import LoaderVideo from "@/shared/lottie/loader-video.json";
+import { router } from '@/app/provides';
 
 
 async function checkPermissions() {
@@ -157,8 +151,8 @@ const onMessageRecieve = (data) => {
     console.log('Подключился ', data.displayName)
     // set up peer connection object for a newcomer peer
 
-    setUpPeer(peerUuid, data.displayName);
-    socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: peerUuid, roomId: props.roomId, userName: props.userName  });
+    setUpPeer(peerUuid, data.userName);
+    socket.emit('webrtcSend', { displayName: props.userName, uuid: props.userId, dest: peerUuid, roomId: props.roomId, userName: props.userName  });
 
   } else if (data.displayName && data.dest == props.userId) {
     // initiate call if we are the newcomer peer
@@ -239,8 +233,6 @@ const start = async () => {
   inCall.value = true;
   socket.on('webrtcRecieve', onMessageRecieve);
   socket.emit('webrtcSend', { displayName: props.userId, uuid: props.userId, dest: 'all', roomId: props.roomId,  userName: props.userName });
-
-
 }
 
 const leaveCall = () => {
@@ -249,6 +241,7 @@ const leaveCall = () => {
   localStream?.getTracks().forEach((track) => track.stop());
   socket.emit('leaveRoom', { roomId: props.roomId, userId: props.userId });
   inCall.value = false;
+  router.push('/')
 };
 
 const joinCall = async () => {

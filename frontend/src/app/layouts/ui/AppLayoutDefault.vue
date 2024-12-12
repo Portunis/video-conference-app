@@ -48,8 +48,6 @@ $admin-nav-width: 250px;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    padding-top: 45px;
-
 
     &::-webkit-scrollbar {
       display: none;

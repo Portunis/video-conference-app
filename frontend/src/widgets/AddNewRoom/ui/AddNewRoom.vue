@@ -58,15 +58,12 @@ const handleRoomConnect = async () => {
       </DialogHeader>
       <div class="grid gap-4 py-4">
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="name" class="text-right">
-            Название
-          </Label>
-          <Input id="name"  v-model="nameRoom" class="col-span-3" />
+          <Input id="name"  v-model="nameRoom" class="col-span-4" />
         </div>
       </div>
       <DialogFooter>
         <Button type="submit" @click="handleSubmit">
-          Добавить
+          Создать
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -86,15 +83,12 @@ const handleRoomConnect = async () => {
       </DialogHeader>
       <div class="grid gap-4 py-4">
         <div class="grid grid-cols-4 items-center gap-4">
-          <Label for="name" class="text-right">
-            Название
-          </Label>
-          <Input id="name"  v-model="roomId" class="col-span-3" />
+          <Input id="name"  v-model="roomId" class="col-span-4" />
         </div>
       </div>
       <DialogFooter>
         <Button type="submit" @click="handleRoomConnect">
-          Добавить
+          Войти
         </Button>
       </DialogFooter>
     </DialogContent>
