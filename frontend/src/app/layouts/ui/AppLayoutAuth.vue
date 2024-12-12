@@ -10,7 +10,7 @@
 
 <style scoped lang="scss">
 .auth-layout {
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
 }
 </style>

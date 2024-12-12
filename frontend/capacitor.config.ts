@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.redramkavc.app',
-  appName: 'start-template',
+  appName: 'rrmeet',
   webDir: 'dist',
   server: {
     // iosScheme: 'https',

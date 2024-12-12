@@ -24,7 +24,7 @@ $admin-nav-width: 250px;
 .main {
   --spacing: 20px;
   display: grid;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
 
   grid-template-rows:     $admin-header-height 1fr $admin-footer-height;
   grid-template-columns:  $admin-nav-width 1fr;

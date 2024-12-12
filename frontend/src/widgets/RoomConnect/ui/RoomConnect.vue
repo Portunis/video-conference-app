@@ -8,7 +8,7 @@
             :height="12"
         />
         </div>
-        <p class="room__header-user"  v-for="(stream, userId) in remoteStreams">{{ userId }}</p>
+        <p class="room__header-user"  v-for="(stream, userId) in remoteStreams">{{ stream.name }}</p>
       </div>
       <div class="room__header-controls">
         <div class="room__header-control">
@@ -33,17 +33,26 @@
       <div class="video local-video">
         <video ref="localVideo" autoplay muted playsinline></video>
       </div>
+      <!-- LOCAL TEST STYLES -->
+      <!-- <div 
+        class="video"
+        :class="{'remote-video-one': isOneRemoteUser}"
+      >
+        <span class="video__label">{{ 'props.userName' }}</span>
+        <video ref="localVideo" autoplay muted playsinline></video>
+      </div> -->
       <div
           v-for="(stream, userId) in remoteStreams"
           :key="userId"
           class="video"
           :class="{'remote-video-one': isOneRemoteUser}"
       >
+        <span class="video__label">{{ stream.name }}</span>
         <video
             :id="'video-' + userId"
             autoplay
             playsinline
-            :srcObject="stream"
+            :srcObject="stream.stream"
         />
 
 <!--        <div v-if="inCall" class="controls-video-remote">-->
@@ -112,11 +121,6 @@ const inCall = ref(false);
 const isLocalVideoMuted = ref(false);
 const isLocalAudioMuted = ref(false);
 
-
-
-
-
-
 const isOneRemoteUser = computed(() => {
   const remote = Object.values(remoteStreams.value).length
   return remote === 1;
@@ -180,7 +184,7 @@ const onMessageRecieve = (data) => {
 const setUpPeer = (peerUuid, displayName, initCall = false) => {
   peerConnections[peerUuid] = { displayName: displayName, pc: new RTCPeerConnection(peerConnectionConfig) };
   peerConnections[peerUuid].pc.onicecandidate = event => gotIceCandidate(event, peerUuid);
-  peerConnections[peerUuid].pc.ontrack = event => gotRemoteStream(event, peerUuid);
+  peerConnections[peerUuid].pc.ontrack = event => gotRemoteStream(event, peerUuid, displayName);
   peerConnections[peerUuid].pc.oniceconnectionstatechange = event => checkPeerDisconnect(event, peerUuid);
   localStream.getTracks().forEach((track) => peerConnections[peerUuid].pc.addTrack(track, localStream));
 
@@ -206,7 +210,11 @@ const createdDescription = (description, peerUuid) => {
 
 const gotRemoteStream = (event, peerUuid,userName) => {
   console.log(`got remote stream, peer ${peerUuid}`);
-  remoteStreams.value[peerUuid] =  event.streams[0];
+  if (!remoteStreams.value[peerUuid]) {
+    remoteStreams.value[peerUuid] = {}
+  }
+  remoteStreams.value[peerUuid].stream = event.streams[0];
+  remoteStreams.value[peerUuid].name = userName;
   remoteAudioMuted.value[peerUuid] = true; // Изначально аудио не отключено
 }
 
@@ -271,7 +279,7 @@ const toggleLocalAudio = () => {
 };
 
 const toggleRemoteAudio = (userId) => {
-  const stream = remoteStreams.value[userId];
+  const stream = remoteStreams.value[userId]?.stream;
   if (stream) {
     const audioTrack = stream.getAudioTracks()[0];
     if (audioTrack) {

@@ -1,3 +1,4 @@
+import { router } from '@/app/provides';
 import axios from 'axios';
 const baseURL = 'https://portunis.pw';
 
@@ -24,8 +25,9 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         if (error.response?.status === 403) {
             try {
-                await refreshAccessToken();
-                return axiosInstance.request(error.config);
+                router.push('/auth')
+                // await refreshAccessToken();
+                // return axiosInstance.request(error.config);
             } catch (refreshError) {
                 console.log("Ошибка обновления токена:", refreshError);
             }
