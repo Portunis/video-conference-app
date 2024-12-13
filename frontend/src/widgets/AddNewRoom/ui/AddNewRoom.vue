@@ -10,11 +10,13 @@ import {
   DialogTrigger,
 } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
 
 import axios from '@/shared/api/api'
-import {ref} from "vue";
+import {ref, markRaw, defineComponent, h} from "vue";
 import {router} from "@/app/provides";
+import { toast } from 'vue-sonner'
+import { NotificationAccept } from "@/shared/ui/notificationAccept";
+
 
 const emits = defineEmits(['successful'])
 
@@ -22,6 +24,35 @@ const nameRoom = ref('')
 const roomId = ref('')
 const isOpenCreateRoom = ref(false)
 const isOpenConnectRoom = ref(false)
+
+
+const testConnectAccept = () => {
+  const CustomDiv = defineComponent({
+    setup() {
+      return () =>
+       h(NotificationAccept, {
+         title: '123',
+         description: 'destc',
+         toastId: toastId,
+         onClose: () => {
+           console.log('close notification')
+         },
+         onAccept: () => {
+           console.log('accept notification')
+         }
+       })
+    }
+  })
+
+  const toastId = toast(markRaw(CustomDiv),
+      {
+        duration: Infinity,
+        unstyled: true,
+        onDismiss:() => {
+          console.log('dismiss notification')
+        }
+      })
+}
 
 const handleSubmit = async () => {
   try {
@@ -43,6 +74,9 @@ const handleRoomConnect = async () => {
 
 <template>
 <div class="add-new-room flex flex-col sm:grid grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+  <Button @click="testConnectAccept">
+    testConnectAccept
+  </Button>
   <Dialog v-model:open="isOpenCreateRoom">
     <DialogTrigger as-child>
       <Button variant="outline">

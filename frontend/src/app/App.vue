@@ -2,8 +2,11 @@
 import { onMounted } from 'vue';
 import { RouterView } from 'vue-router'
 import AppLayout from './layouts/ui/AppLayout.vue'
-import Toaster from '@/shared/ui/toast/Toaster.vue'
+import ToasterNotification from '@/shared/ui/toast/Toaster.vue'
 import { setTheme } from '@/shared/utils/setTheme'
+import { Toaster } from '@/shared/ui/sonner'
+
+
 
 setTheme()
 const calcVh = () => {
@@ -29,6 +32,7 @@ onMounted(() => {
     <RouterView />
   </AppLayout>
   <Toaster />
+  <ToasterNotification />
 </template>
 
 <style scoped></style>
