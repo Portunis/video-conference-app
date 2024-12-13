@@ -1,0 +1,1 @@
+export { default as NotificationAccept } from "./NotificationAccept.vue";
