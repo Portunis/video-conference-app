@@ -1,8 +1,11 @@
 const Room = require('../db/models/Room');
 const User = require('../db/models/User');
+const { getAndCreateIfNotExist } = require('../repository/roomUserRepository');
 const { validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
+const RoomUser = require('../db/models/RoomUsers');
+const { Op, Sequelize } = require('sequelize');
 
 const createRoom = async (req, res) => {
     const errors = validationResult(req);
@@ -14,7 +17,15 @@ const createRoom = async (req, res) => {
     const { id } = req.user;
 
     try {
-        const room = await Room.create({ roomName, createdBy: id });
+        const room = await Room.create({
+            roomName,
+            createdBy: id
+        });
+
+        await getAndCreateIfNotExist({
+            userId: id,
+            roomId: room.roomId
+        })
 
         res.status(201).json({ roomId: room.roomId });
     } catch (err) {
@@ -55,7 +66,22 @@ const getUserRooms = async (req, res) => {
     console.log('user', user);
 
     try {
-        const rooms = await Room.findAll({ where: { createdBy: user.dataValues.userId } });
+        const rooms = await Room.findAll({
+            where: {
+                roomId: {
+                    [Sequelize.Op.in]: Sequelize.literal(`
+                        (SELECT "roomId"
+                            FROM "RoomUsers"
+                            WHERE "userId" = '${user.dataValues.userId}')
+                      `)
+                }
+            },
+            include: [{
+                model: User,
+                through: { attributes: ['status', 'userId'] },
+            }],
+        });
+
         res.json(rooms);
     } catch (err) {
         console.error(err);

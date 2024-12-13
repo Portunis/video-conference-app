@@ -27,6 +27,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "lottie-web-vue": "^2.0.7",
     "lucide-vue-next": "^0.330.0",
+    "moment": "^2.30.1",
     "pinia": "^2.1.7",
     "postcss": "^8.4.35",
     "radix-vue": "^1.4.3",

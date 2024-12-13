@@ -71,14 +71,15 @@
         <div class="icon">
           <MessageCircle color="#fff" />
         </div>
-        <div class="icon">
-          <Settings color="#fff" />
+        <div class="icon" @click="toggleDrawer">
+          <UserRoundSearch color="#fff"/>
         </div>
         <div @click="leaveCall" class="icon icon--red">
           <X color="#fff" />
         </div>
       </div>
     </div>
+    <RoomUsersDrawer v-model="isRoomUsersOpen"/>
   </div>
 </template>
 
@@ -96,10 +97,12 @@ import {
   Settings,
   SwitchCamera,
   ChevronLeft,
+  UserRoundSearch
 } from "lucide-vue-next";
 import { LottieAnimation } from "lottie-web-vue";
 import LoaderVideo from "@/shared/lottie/loader-video.json";
 import { router } from "@/app/provides";
+import { RoomUsersDrawer } from "@/widgets/RoomUsersDrawer";
 
 async function checkPermissions() {
   const status = await Permissions.query({ name: "camera" });
@@ -120,6 +123,7 @@ let peerConnections = {};
 let remoteStreams = ref({});
 let remoteAudioMuted = ref({});
 
+const isRoomUsersOpen = ref(false)
 const inCall = ref(false);
 const isLocalVideoMuted = ref(false);
 const isLocalAudioMuted = ref(false);
@@ -135,6 +139,10 @@ const peerConnectionConfig = {
     { urls: "stun:stun.redramka.ru:15349" },
   ],
 };
+
+const toggleDrawer = () => {
+  isRoomUsersOpen.value = !isRoomUsersOpen.value
+}
 
 const errorHandler = (error) => {
   console.log("werbrtc error", error);
@@ -351,10 +359,11 @@ const toggleRemoteAudio = (userId) => {
 };
 
 onMounted(() => {
-  socket = io("https://portunis.pw");
+  // socket = io("https://portunis.pw");
+  socket = io("http://localhost:3001");
 });
 onUnmounted(() => {
-  leaveCall();
+  socket.disconnect()
 });
 </script>
 

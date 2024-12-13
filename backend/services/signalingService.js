@@ -1,4 +1,6 @@
 const { Server } = require('socket.io');
+const { getAndCreateIfNotExist, setStatus } = require('../repository/roomUserRepository');
+
 const io = new Server(3001, {
     cors: {
         // origin: 'https://portunis.pw',
@@ -71,16 +73,19 @@ console.log('Socket.IO сервер успешно запущен на порт�
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('joinRoom2', (data) => {
+    socket.on('joinRoom2', async (data) => {
         if (data.roomId) {
             socket.join(data.roomId)
             socket.userData = data
+            const roomUser = await getAndCreateIfNotExist({ roomId: data.roomId, userId: data.userId })
+            socket.userData.roomUserId = roomUser.roomUserId
+            await setStatus({ roomUserId: roomUser.roomUserId, status: 'online' })
         }
     })
 
     socket.on('webrtcSend', (data) => {
         io.to(data.roomId).emit('webrtcRecieve', data)
-	console.log('data socket connect', data)
+        console.log('data socket connect', data)
     })
 
     socket.on('leaveRoom', (data) => {
@@ -93,8 +98,9 @@ io.on('connection', (socket) => {
         socket.to(data.roomId).emit('userLeft', { userId: data.userId, userName: data.username });
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         if (socket.userData) {
+            await setStatus({ roomUserId: socket.userData.roomUserId, status: 'offline' })
             io.to(socket.userData.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
         }
         console.log('User disconnected:', socket.id);

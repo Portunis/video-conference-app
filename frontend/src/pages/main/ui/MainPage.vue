@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import moment from 'moment'
 import axios from "@/shared/api/api";
 import { LottieAnimation } from "lottie-web-vue";
 import kasper from "@/shared/lottie/kasper.json";
@@ -46,6 +47,17 @@ const joinRoom = (roomId) => {
   route.push({ path: "room-page", query: { id: roomId } });
 };
 
+const computedRooms = computed(() => {
+  return rooms.value?.reduce((accum, item) => {
+    if (item?.createdBy === user.value?.userId) {
+      accum.own.push(item)
+    } else {
+      accum.history.push(item)
+    }
+    return accum
+  }, { own: [], history: [] })
+})
+
 onMounted(() => {
   fetchRooms();
   getUser();
@@ -58,19 +70,18 @@ onMounted(() => {
       <h2 class="text-2xl font-semibold mb-4">Комнаты для созвона</h2>
       <AddNewRoom @successful="fetchRooms" />
       <Tabs default-value="room" class="mt-5">
-        <TabsList class="grid grid-cols-3">
-          <TabsTrigger value="room"> В процессе </TabsTrigger>
-          <TabsTrigger value="room-old"> Ожидают </TabsTrigger>
-          <TabsTrigger value="cancel"> Закончено </TabsTrigger>
+        <TabsList class="grid grid-cols-2">
+          <TabsTrigger value="room"> Мои комнаты </TabsTrigger>
+          <TabsTrigger value="room-old"> История </TabsTrigger>
         </TabsList>
         <TabsContent value="room">
           <div
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5"
-            v-if="rooms.length"
+            v-if="computedRooms.own.length"
           >
             <TransitionGroup name="list" appear>
               <div
-                v-for="room in rooms"
+                v-for="room in computedRooms.own"
                 :key="room.roomId"
                 class="card-meeting bg-neutral-100 dark:text-neutral-50 dark:white"
               >
@@ -78,7 +89,7 @@ onMounted(() => {
                   <div
                     class="card-meeting__times bg-neutral-100 dark:text-neutral-50 dark:bg-neutral-800"
                   >
-                    13.10.2024 00:07
+                    {{ moment(room.createdAt).format('DD.MM.YYYY HH:mm') }}
                   </div>
                   <CopyDialog
                     label="Ссылка"
@@ -89,23 +100,23 @@ onMounted(() => {
                 <h3 class="card-meeting__title text-neutral-50 dark:text-black">
                   {{ room.roomName }}
                 </h3>
-                <p
+                <!-- <p
                   class="card-meeting__description text-neutral-50 dark:text-black"
                 >
                   Описание комнаты
-                </p>
+                </p> -->
                 <div class="card-meeting__footer">
                   <div class="card-meeting__people">
                     <Avatar
                       class="card-meeting__people-avatar h-8 w-8"
-                      v-for="n in 4"
+                      v-for="user in room.Users.slice(0,4)"
                     >
                       <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                      <AvatarFallback>SC</AvatarFallback>
+                      <AvatarFallback>{{ user.username[0] || '' }}</AvatarFallback>
                     </Avatar>
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
+                    <Avatar v-if="(room.Users.length - 4) > 0" class="card-meeting__people-avatar h-8 w-8">
                       <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                      <AvatarFallback>+6</AvatarFallback>
+                      <AvatarFallback>+ {{ room.Users.length - 4 }}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div
@@ -126,7 +137,7 @@ onMounted(() => {
             </TransitionGroup>
           </div>
 
-          <div  v-if="rooms.length === 0">
+          <div  v-if="computedRooms.own.length === 0">
             <p class="main-page__text">Тут так пусто...</p>
             <LottieAnimation
                 class="main-page__not-found-animation"
@@ -136,20 +147,77 @@ onMounted(() => {
           </div>
         </TabsContent>
         <TabsContent value="room-old">
-          <p class="main-page__text">Тут так пусто...</p>
-          <LottieAnimation
-            class="main-page__not-found-animation"
-            :animation-data="kasper"
-            :loop="true"
-          />
-        </TabsContent>
-        <TabsContent value="cancel">
-          <p class="main-page__text">Тут так пусто...</p>
-          <LottieAnimation
-            class="main-page__not-found-animation"
-            :animation-data="kasper"
-            :loop="true"
-          />
+          <!-- TODO: Унифицировать карточку -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5"
+            v-if="computedRooms.history.length"
+          >
+            <TransitionGroup name="list" appear>
+              <div
+                v-for="room in computedRooms.history"
+                :key="room.roomId"
+                class="card-meeting bg-neutral-100 dark:text-neutral-50 dark:white"
+              >
+                <div class="card-meeting__top">
+                  <div
+                    class="card-meeting__times bg-neutral-100 dark:text-neutral-50 dark:bg-neutral-800"
+                  >
+                    {{ moment(room.createdAt).format('DD.MM.YYYY HH:mm') }}
+                  </div>
+                  <CopyDialog
+                    label="Ссылка"
+                    description="Скопируйте код комнаты"
+                    :url="`${room.roomId}`"
+                  />
+                </div>
+                <h3 class="card-meeting__title text-neutral-50 dark:text-black">
+                  {{ room.roomName }}
+                </h3>
+                <!-- <p
+                  class="card-meeting__description text-neutral-50 dark:text-black"
+                >
+                  Описание комнаты
+                </p> -->
+                <div class="card-meeting__footer">
+                  <div class="card-meeting__people">
+                    <Avatar
+                      class="card-meeting__people-avatar h-8 w-8"
+                      v-for="user in room.Users.slice(0,4)"
+                    >
+                      <AvatarImage src="/avatars/01.png" alt="@shadcn" />
+                      <AvatarFallback>{{ user.username[0] || '' }}</AvatarFallback>
+                    </Avatar>
+                    <Avatar v-if="(room.Users.length - 4) > 0" class="card-meeting__people-avatar h-8 w-8">
+                      <AvatarImage src="/avatars/01.png" alt="@shadcn" />
+                      <AvatarFallback>+ {{ room.Users.length - 4 }}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div
+                    class="card-meeting__button bg-white dark:bg-black"
+                    @click="joinRoom(room.roomId)"
+                  >
+                    <p
+                      class="card-meeting__button-name text-black dark:text-white"
+                    >
+                      Войти
+                    </p>
+                    <div class="card-meeting__button-icon">
+                      <MoveRight color="#fff" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TransitionGroup>
+          </div>
+
+          <div  v-if="computedRooms.history.length === 0">
+            <p class="main-page__text">Тут так пусто...</p>
+            <LottieAnimation
+                class="main-page__not-found-animation"
+                :animation-data="kasper"
+                :loop="true"
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
@@ -178,6 +246,11 @@ onMounted(() => {
     font-family: "Chakra Petch", sans-serif;
     margin-top: 10px;
     font-size: 20px;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
   }
   &__button {
     border-radius: 30px;
