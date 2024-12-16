@@ -1,7 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.redramkavc.app',
+  // appId: 'com.redramkavc.app',
+  appId: 'com.redramka.redramkaMeet', // ios todo
   appName: 'rrmeet',
   webDir: 'dist',
   server: {
