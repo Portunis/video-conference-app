@@ -359,8 +359,8 @@ const toggleRemoteAudio = (userId) => {
 };
 
 onMounted(() => {
-  // socket = io("https://portunis.pw");
-  socket = io("http://localhost:3001");
+  socket = io("https://portunis.pw");
+  // socket = io("http://localhost:3001");
 });
 onUnmounted(() => {
   socket.disconnect()

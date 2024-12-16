@@ -10,7 +10,7 @@
 
 <style scoped lang="scss">
 .auth-layout {
-  height: calc(var(--vh, 1vh) * 100);
+  height: calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   width: 100%;
 }
 </style>
