@@ -63,6 +63,10 @@ const getUserRooms = async (req, res) => {
 
     const user = await User.findOne({ where: { userId: decoded.id } });
 
+    if (!user) {
+        return res.status(403).json({ message: 'Invalid or expired access token' });
+    }
+
     console.log('user', user);
 
     try {
