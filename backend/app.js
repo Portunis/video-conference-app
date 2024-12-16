@@ -10,7 +10,8 @@ const redisClient = require('./redis/redis');
 const app = express();
 
 const corsOptions = {
-    origin: 'https://portunis.pw',
+    // origin: 'https://portunis.pw',
+    origin: ['https://localhost', 'capacitor://localhost', 'https://portunis.pw', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

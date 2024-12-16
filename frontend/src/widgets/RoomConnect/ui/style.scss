@@ -1,7 +1,8 @@
 .room {
   text-align: center;
+  height: 100%;
   &__header {
-    padding: 0 16px;
+    padding: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -44,7 +45,8 @@
   }
 }
 .controls-video {
-  position: absolute;
+  position: fixed;
+  z-index: 1;
   bottom: 43px;
   display: flex;
   align-items: center;
@@ -97,13 +99,18 @@
 }
 .video-container {
   display: grid;
-  grid-template-columns: repeat(1);
+  grid-template-columns: 1fr;
   justify-content: center;
   flex-wrap: wrap;
   column-gap: 10px;
   row-gap: 10px;
-  height: 100%;
+  height: calc(100% - 60px);
   position: relative;
+  &--many-remote {
+    padding: 0 12px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: min-content;
+  }
 }
 .video-container-remote {
   position: relative;
@@ -112,21 +119,26 @@
 .video {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 0;
+  padding-top: 100%;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid transparent;
+  &--remote:last-child:nth-child(odd) {
+    transform: translateX(50%);
+  }
 }
 
 
 .video__label {
   position: absolute;
   z-index: 1;
-  bottom: 12px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   padding: 4px 12px;
   font-size: 12px;
+  color: #fff;
   border-radius: 12px;
   background-color:rgba(30, 30, 30, 0.5);
   
@@ -156,6 +168,7 @@ video {
   position: fixed;
   bottom: 160px;
   right: 20px;
+  padding-top: 0;
   z-index: 9999;
   transition: top 0.3s ease, left 0.3s ease;
   cursor: grab;
@@ -199,11 +212,6 @@ video {
   color: #fff;
 }
 
-.video-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
 .controls-video-remote {
   position: absolute;
   bottom: 10px;
@@ -214,16 +222,23 @@ video {
   justify-content: center;
 }
 .remote-video-one{
-  height: calc(100svh - 93px);
+  height: 100%;
+  padding-top: 0;
   border-radius: 0;
+  &:last-child:nth-child(odd) {
+    transform: translateX(0);
+  }
 }
 @media screen and (min-width: 768px) {
   .video {
     width: 300px;
+    &--remote:last-child:nth-child(odd) {
+      transform: translateX(0);
+    }
   }
   .local-video {
-    width: 400px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
   }
   .controls-video {
     width: 500px;
@@ -233,9 +248,11 @@ video {
   }
   .video-container{
     display: grid;
+    grid-template-columns: repeat(auto-fit, 300px);
     gap: 10px; /* Расстояние между видео */
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100);
+    align-content: start;
+    grid-auto-rows: 300px;
   }
 
 }
