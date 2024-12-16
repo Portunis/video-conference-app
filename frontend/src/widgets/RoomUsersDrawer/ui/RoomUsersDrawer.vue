@@ -17,9 +17,9 @@ enum EUserStatus {
 
 type TUser = {
     userId: string;
-    username: string;
-    RoomUsers: {
-        status: EUserStatus
+    status: EUserStatus
+    user: {
+        username: string;
     }
 }
 
@@ -47,90 +47,20 @@ watch(() => props.modelValue, (nexIsOpen) => {
 </script>
 <template>
     <Drawer v-model:open="isOpen">
-        <DrawerContent>
+        <DrawerContent class="z-[9999]">
             <DrawerHeader>
                 <DrawerTitle>Пользователи</DrawerTitle>
                 <DrawerDescription>Спислк пользователей в комнате</DrawerDescription>
             </DrawerHeader>
-            <div class="space-y-8">
-                <div class="flex items-center">
+            <div class="space-y-8 p-4">
+                <div v-for="user in users" class="flex items-center">
                     <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
+                        <AvatarFallback>{{ user.user.username[0] || '' }}</AvatarFallback>
                     </Avatar>
                     <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
+                        <p class="text-sm font-medium leading-none"> {{ user.user.username }} </p>
                     </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div>
-                <div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div><div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
-                </div><div class="flex items-center">
-                    <Avatar class="card-meeting__people-avatar h-8 w-8">
-                        <AvatarFallback>q</AvatarFallback>
-                    </Avatar>
-                    <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> Olivia Martin </p>
-                    </div>
-                    <div class="ml-auto font-medium"> {{  }} </div>
+                    <div class="ml-auto font-medium" :class="{ 'text-green-600': user.status === 'online', 'text-red-600': user.status === 'offline' }"> {{  user.status }} </div>
                 </div>
             </div>
         </DrawerContent>

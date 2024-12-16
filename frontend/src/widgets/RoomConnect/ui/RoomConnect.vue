@@ -79,7 +79,7 @@
         </div>
       </div>
     </div>
-    <RoomUsersDrawer v-model="isRoomUsersOpen"/>
+    <RoomUsersDrawer v-model="isRoomUsersOpen" :users="roomUsers"/>
   </div>
 </template>
 
@@ -117,6 +117,7 @@ const props = defineProps({
 });
 
 const localVideo = ref(null);
+const roomUsers = ref([]);
 let socket = null;
 let localStream = null;
 let peerConnections = {};
@@ -312,9 +313,14 @@ const leaveCall = () => {
   router.push("/");
 };
 
+const onGetUsers = ({ users }) => {
+  roomUsers.value = users
+}
+
 const joinCall = async () => {
   await startLocalStream();
 
+  socket.on('users', onGetUsers)
   // Отправляем запрос на присоединение к комнате
   socket.emit("joinRoom2", {
     roomId: props.roomId,
@@ -359,8 +365,8 @@ const toggleRemoteAudio = (userId) => {
 };
 
 onMounted(() => {
-  socket = io("https://portunis.pw");
-  // socket = io("http://localhost:3001");
+  // socket = io("https://portunis.pw");
+  socket = io("http://localhost:3001");
 });
 onUnmounted(() => {
   socket.disconnect()

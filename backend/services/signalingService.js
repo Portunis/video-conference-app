@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const { getAndCreateIfNotExist, setStatus } = require('../repository/roomUserRepository');
+const { getAndCreateIfNotExist, setStatus, getRoomUsers } = require('../repository/roomUserRepository');
 
 const initIo = () => {
     const io = new Server(3001, {
@@ -81,6 +81,9 @@ const initIo = () => {
                 const roomUser = await getAndCreateIfNotExist({ roomId: data.roomId, userId: data.userId })
                 socket.userData.roomUserId = roomUser.roomUserId
                 await setStatus({ roomUserId: roomUser.roomUserId, status: 'online' })
+
+                const roomUsers = await getRoomUsers({ roomId: data.roomId })
+                io.to(data.roomId).emit('users', { users: roomUsers })
             }
         })
     
@@ -103,6 +106,9 @@ const initIo = () => {
             if (socket.userData) {
                 await setStatus({ roomUserId: socket.userData.roomUserId, status: 'offline' })
                 io.to(socket.userData.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
+                
+                const roomUsers = await getRoomUsers({ roomId: socket.userData.roomId })
+                io.to(socket.userData.roomId).emit('users', { users: roomUsers })
             }
             console.log('User disconnected:', socket.id);
         });

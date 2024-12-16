@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const sequelize = require('../db');
+const RoomUser = require('./RoomUsers');
 
 const User = sequelize.define('User', {
     userId: {
@@ -36,5 +37,15 @@ User.beforeCreate(async (user) => {
 User.prototype.isValidPassword = async function (password) {
     return bcrypt.compare(password, this.password);
 };
+
+User.hasMany(RoomUser, {
+    foreignKey: 'userId',
+    as: 'roomUsers', // alias для обратной связи
+});
+
+RoomUser.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user', // alias для ассоциации
+});
 
 module.exports = User;

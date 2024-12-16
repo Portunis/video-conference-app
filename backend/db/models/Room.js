@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 const User = require('./User');
+const RoomUser = require('./RoomUsers');
 
 const Room = sequelize.define('Room', {
     roomId: {

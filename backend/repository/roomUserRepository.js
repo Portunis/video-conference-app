@@ -1,4 +1,5 @@
 const RoomUser = require('../db/models/RoomUsers');
+const User = require('../db/models/User');
 // const Room = require('../db/models/Room');
 // const User = require('../db/models/User');
 
@@ -49,4 +50,25 @@ const setStatus = async ({ roomUserId, status }) => {
     }
 }
 
-module.exports = { getAndCreateIfNotExist, setStatus };
+const getRoomUsers = async ({ roomId }) => {
+    try {
+        const roomUsers = await RoomUser.findAll({
+            where: {
+                roomId: roomId
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['userId', 'username', 'email'], // поля, которые вы хотите получить
+                }
+            ]
+        });
+        console.log('room users', roomUsers)
+        return roomUsers;
+    } catch (e) {
+        console.error('getRoomUsers', e)
+    }
+}
+
+module.exports = { getAndCreateIfNotExist, setStatus, getRoomUsers };
