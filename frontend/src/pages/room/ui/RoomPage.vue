@@ -27,6 +27,6 @@ getUser();
 
 <style scoped lang="scss">
 .room-page {
-  height: 100%;
+  height: calc(var(--vh, 1vh) * 100);
 }
 </style>

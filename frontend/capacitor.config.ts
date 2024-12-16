@@ -9,6 +9,9 @@ const config: CapacitorConfig = {
     // iosScheme: 'https',
     // hostname: 'portunis.pw'
   },
+  ios: {
+    contentInset: 'always',
+  },
   plugins: {
     CapacitorCookies: {
       enabled: true
