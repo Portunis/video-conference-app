@@ -8,6 +8,7 @@ const { handleError } = require('./controllers/errorController');
 const sequelize = require('./db/db');
 const redisClient = require('./redis/redis');
 const app = express();
+const { initIo } = require('./services/signalingService')
 
 const corsOptions = {
     // origin: 'https://portunis.pw',
@@ -30,6 +31,7 @@ app.use('/api/sessions', sessionRoutes);
 
 sequelize.sync()
     .then(() => {
+        initIo()
         console.log('Database synced');
     })
     .catch(err => {
