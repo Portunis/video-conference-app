@@ -10,7 +10,7 @@ const props = defineProps<ToasterProps>()
     v-bind="props"
     :toast-options="{
       classes: {
-        toast: 'group toast  group-[.toaster]:shadow-lg',
+        toast: 'group toast',
         description: 'group-[.toast]:text-muted-foreground',
         actionButton:
           'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',

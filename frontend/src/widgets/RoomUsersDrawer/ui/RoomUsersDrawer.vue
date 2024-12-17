@@ -25,7 +25,8 @@ type TUser = {
 
 type TProps = {
     modelValue: boolean
-    users: TUser[]
+    users: TUser[],
+    admin: string
 }
 
 type TEmits = {
@@ -50,7 +51,7 @@ watch(() => props.modelValue, (nexIsOpen) => {
         <DrawerContent class="z-[9999]">
             <DrawerHeader>
                 <DrawerTitle>Пользователи</DrawerTitle>
-                <DrawerDescription>Спислк пользователей в комнате</DrawerDescription>
+                <DrawerDescription>Список пользователей в комнате</DrawerDescription>
             </DrawerHeader>
             <div class="space-y-8 p-4">
                 <div v-for="user in users" class="flex items-center">
@@ -58,7 +59,12 @@ watch(() => props.modelValue, (nexIsOpen) => {
                         <AvatarFallback>{{ user.user.username[0] || '' }}</AvatarFallback>
                     </Avatar>
                     <div class="ml-4 space-y-1">
-                        <p class="text-sm font-medium leading-none"> {{ user.user.username }} </p>
+                       <div class="flex items-center">
+                         <p class="text-sm font-medium leading-none"> {{ user.user.username }} </p>
+                         <div class="drawer-dot"></div>
+                       </div>
+                        <p class="text-sm" v-if="user.user.userId === admin">Администратор</p>
+                        <p class="text-sm" v-else>Пользователь</p>
                     </div>
                     <div class="ml-auto font-medium" :class="{ 'text-green-600': user.status === 'online', 'text-red-600': user.status === 'offline' }"> {{  user.status }} </div>
                 </div>
@@ -66,3 +72,32 @@ watch(() => props.modelValue, (nexIsOpen) => {
         </DrawerContent>
     </Drawer>
 </template>
+<style scoped lang="scss">
+.drawer-dot {
+  margin-left: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(252, 3, 3);
+  transform: scale(1);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 1);
+  animation: anim-vibrate 2s infinite;
+
+  @keyframes anim-vibrate {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(252, 3, 3, 0.7);
+    }
+
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0.3rem rgba(0, 0, 0, 0);
+    }
+
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+  }
+}
+</style>

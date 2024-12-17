@@ -40,7 +40,7 @@ const copyToClipboard = async () => {
     console.error('Ошибка при копировании: ', err)
     toast({
       title: 'Ошибка при копировании',
-      description: `Вы выпались скопировать ${inputElement.value}`,
+      description: `Вы пытались скопировать ${inputElement.value}`,
       type: 'danger'
     })
   }

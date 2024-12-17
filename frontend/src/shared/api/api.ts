@@ -1,7 +1,7 @@
 import { router } from '@/app/provides';
 import axios from 'axios';
-// const baseURL = 'https://portunis.pw';
-const baseURL = 'http://localhost:3000';
+const baseURL = import.meta.env.VITE_API_URL;
+
 
 
  const axiosInstance = axios.create({
@@ -37,7 +37,7 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-const refreshAccessToken = async () => {
-    const response = await axiosInstance.post("api/users/refresh-token");
-};
+// const refreshAccessToken = async () => {
+//     const response = await axiosInstance.post("api/users/refresh-token");
+// };
 export default axiosInstance;

@@ -8,7 +8,7 @@ import { AddNewRoom } from "@/widgets/AddNewRoom";
 import { useRouter } from "vue-router";
 import { useToast } from "@/shared/ui/toast";
 import { CopyDialog } from "@/widgets/CopyDialog";
-import { MoveRight } from "lucide-vue-next";
+import {Copy, MoveRight} from "lucide-vue-next";
 import Avatar from "@/shared/ui/avatar/Avatar.vue";
 import { AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
@@ -47,6 +47,38 @@ const joinRoom = (roomId) => {
   route.push({ path: "room-page", query: { id: roomId } });
 };
 
+const onShareUrlRoom = async (roomId) => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: roomId,
+      })
+    } catch (error) {
+      console.error(error)
+      await copyToClipboard(roomId)
+    }
+  } else {
+    await copyToClipboard(roomId)
+  }
+}
+const copyToClipboard = async (roomId) => {
+  try {
+    if (roomId) {
+      await navigator.clipboard.writeText(roomId)
+      toast({
+        title: 'Успех',
+        description: `Скопирован текст ${roomId}`
+      })
+    }
+  } catch (err) {
+    console.error('Ошибка при копировании: ', err)
+    toast({
+      title: 'Ошибка при копировании',
+      description: `Вы пытались скопировать ${roomId}`,
+      type: 'danger'
+    })
+  }
+}
 const computedRooms = computed(() => {
   return rooms.value?.reduce((accum, item) => {
     if (item?.createdBy === user.value?.userId) {
@@ -83,21 +115,19 @@ onMounted(() => {
               <div
                 v-for="room in computedRooms.own"
                 :key="room.roomId"
-                class="card-meeting bg-neutral-100 dark:text-neutral-50 dark:white"
+                class="card-meeting bg-neutral-100 text-black dark:text-neutral-50 dark:white"
               >
                 <div class="card-meeting__top">
                   <div
-                    class="card-meeting__times bg-neutral-100 dark:text-neutral-50 dark:bg-neutral-800"
+                    class="card-meeting__times text-black bg-white dark:text-neutral-50 dark:bg-neutral-800"
                   >
                     {{ moment(room.createdAt).format('DD.MM.YYYY HH:mm') }}
                   </div>
-                  <CopyDialog
-                    label="Ссылка"
-                    description="Скопируйте код комнаты"
-                    :url="`${room.roomId}`"
-                  />
+                  <div class="copy-button dark:bg-neutral-800" @click="onShareUrlRoom(room.roomId)">
+                    <Copy class="w-4 h-4" />
+                  </div>
                 </div>
-                <h3 class="card-meeting__title text-neutral-50 dark:text-black">
+                <h3 class="card-meeting__title text-black dark:text-black">
                   {{ room.roomName }}
                 </h3>
                 <!-- <p
@@ -129,7 +159,7 @@ onMounted(() => {
                       Войти
                     </p>
                     <div class="card-meeting__button-icon">
-                      <MoveRight color="#fff" />
+                      <MoveRight class="text-black dark:text-white" />
                     </div>
                   </div>
                 </div>
@@ -156,21 +186,19 @@ onMounted(() => {
               <div
                 v-for="room in computedRooms.history"
                 :key="room.roomId"
-                class="card-meeting bg-neutral-100 dark:text-neutral-50 dark:white"
+                class="card-meeting bg-neutral-100 text-black dark:text-neutral-50 dark:white"
               >
                 <div class="card-meeting__top">
                   <div
-                    class="card-meeting__times bg-neutral-100 dark:text-neutral-50 dark:bg-neutral-800"
+                    class="card-meeting__times text-black bg-neutral-100 dark:text-neutral-50 dark:bg-neutral-800"
                   >
                     {{ moment(room.createdAt).format('DD.MM.YYYY HH:mm') }}
                   </div>
-                  <CopyDialog
-                    label="Ссылка"
-                    description="Скопируйте код комнаты"
-                    :url="`${room.roomId}`"
-                  />
+                  <div class="copy-button dark:bg-neutral-800" @click="onShareUrlRoom(room.roomId)">
+                    <Copy class="w-4 h-4" />
+                  </div>
                 </div>
-                <h3 class="card-meeting__title text-neutral-50 dark:text-black">
+                <h3 class="card-meeting__title text-black dark:text-black">
                   {{ room.roomName }}
                 </h3>
                 <!-- <p
@@ -202,7 +230,7 @@ onMounted(() => {
                       Войти
                     </p>
                     <div class="card-meeting__button-icon">
-                      <MoveRight color="#fff" />
+                      <MoveRight class="text-black dark:text-white" />
                     </div>
                   </div>
                 </div>
@@ -300,5 +328,10 @@ onMounted(() => {
 
 .list-leave-active {
   position: absolute;
+}
+.copy-button {
+  border-radius: 50px;
+  padding: 15px;
+  cursor: pointer;
 }
 </style>

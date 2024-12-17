@@ -5,3 +5,9 @@ npm 10.1.0
 # FSD structure
 
 
+## Для разработки нужно добавить файлы
+```angular2html
+.env.local - для дев разработки
+.env.production - для сборки деплоя 
+```
+

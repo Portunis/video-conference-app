@@ -2,8 +2,8 @@ const User = require('../db/models/User');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const { validationResult } = require('express-validator');
-const JWT_EXPIRATION = '15m';
-const JWT_REFRESH_EXPIRATION = '7d';
+const JWT_EXPIRATION = '365d';
+const JWT_REFRESH_EXPIRATION = '365d';
 const registerUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -66,13 +66,13 @@ const loginUser = async (req, res) => {
         res.cookie('access_token', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60 * 1000, // 60 min
+            maxAge: 365 * 24 * 60 * 60 * 1000, // 365 d
             sameSite: 'strict',
         });
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+            maxAge: 365 * 24 * 60 * 60 * 1000, // 7d
             sameSite: 'strict',
         });
         res.json({ userId: user.userId, accessToken });

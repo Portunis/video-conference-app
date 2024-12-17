@@ -23,7 +23,7 @@
         :animation-data="LoaderVideo"
         :loop="true"
       />
-      <Button class="mt-5" @click="joinCall">Присоединиться к звонку</Button>
+      <Button v-if="!isNotApprove" class="mt-5" @click="requestAcceptToRoom">Присоединиться к звонку</Button>
     </div>
     <div v-show="inCall" class="video local-video">
       <video ref="localVideo" autoplay muted playsinline></video>
@@ -79,12 +79,12 @@
         </div>
       </div>
     </div>
-    <RoomUsersDrawer v-model="isRoomUsersOpen" :users="roomUsers"/>
+    <RoomUsersDrawer v-model="isRoomUsersOpen" :users="roomUsers" :admin="admin"/>
   </div>
 </template>
 
-<script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+<script setup lang="ts">
+import {computed, defineComponent, h, markRaw, onMounted, onUnmounted, ref} from "vue";
 import { io } from "socket.io-client";
 import { Button } from "@/shared/ui/button";
 import {
@@ -103,17 +103,16 @@ import { LottieAnimation } from "lottie-web-vue";
 import LoaderVideo from "@/shared/lottie/loader-video.json";
 import { router } from "@/app/provides";
 import { RoomUsersDrawer } from "@/widgets/RoomUsersDrawer";
+import {NotificationAccept} from "@/shared/ui/notificationAccept";
+import { Notification } from "@/shared/ui/notification";
+import {toast} from "vue-sonner";
 
-async function checkPermissions() {
-  const status = await Permissions.query({ name: "camera" });
-  if (status.state !== "granted") {
-    await Permissions.request({ name: "camera" });
-  }
-}
 const props = defineProps({
   roomId: String,
   userId: String,
   userName: String,
+  admin: String,
+  isUserRoom: Boolean,
 });
 
 const localVideo = ref(null);
@@ -123,6 +122,7 @@ let localStream = null;
 let peerConnections = {};
 let remoteStreams = ref({});
 let remoteAudioMuted = ref({});
+const isNotApprove = ref(false)
 
 const isRoomUsersOpen = ref(false)
 const inCall = ref(false);
@@ -133,6 +133,11 @@ const isOneRemoteUser = computed(() => {
   const remote = Object.values(remoteStreams.value).length;
   return remote === 1;
 });
+
+const isAdmin = computed(() => {
+  return props.userId === props.admin
+})
+
 
 const peerConnectionConfig = {
   iceServers: [
@@ -292,6 +297,7 @@ const start = async () => {
     }
     delete remoteStreams.value[userId];
     delete remoteAudioMuted.value[userId];
+    isNotApprove.value = false
   });
   inCall.value = true;
   socket.on("webrtcRecieve", onMessageRecieve);
@@ -317,15 +323,34 @@ const onGetUsers = ({ users }) => {
   roomUsers.value = users
 }
 
+const requestAcceptToRoom = () => {
+  if (!props.isUserRoom && !isAdmin.value ) {
+    socket.emit("joinRoom2", {
+      roomId: props.roomId,
+      userId: props.userId,
+      userName: props.userName,
+      isUserRoom: props.isUserRoom,
+      isAdmin: isAdmin.value
+    });
+    isNotApprove.value = true
+    notificationAlert('Приглашение отправлено', `Комната № ${props.roomId}`)
+    return
+  }
+  joinCall()
+}
+
 const joinCall = async () => {
   await startLocalStream();
 
   socket.on('users', onGetUsers)
   // Отправляем запрос на присоединение к комнате
+
   socket.emit("joinRoom2", {
     roomId: props.roomId,
     userId: props.userId,
     userName: props.userName,
+    isUserRoom: true,
+    isAdmin: isAdmin.value
   });
 
   setTimeout(() => {
@@ -364,9 +389,88 @@ const toggleRemoteAudio = (userId) => {
   }
 };
 
+
+
+const openToast = (userName, userId) => {
+  toast(
+      markRaw(
+          defineComponent({
+            setup() {
+              const isLoader = ref(false);
+
+              const onCloseToast = () => {
+                toast.dismiss(userId)
+              };
+
+              const onAcceptToast = () => {
+                isLoader.value = true;
+                socket.emit("approveJoin", {  roomId: props.roomId, userId: userId,  userName, })
+
+                  setTimeout(() => {
+                    isLoader.value = false;
+                    toast.dismiss(userId)
+
+                  }, 2000);
+
+              };
+
+              return () =>
+                  h(NotificationAccept, {
+                    title: `Запрос от ${userName}`,
+                    description: "Хотите разрешить вход?",
+                    isLoader: isLoader,
+                    onClose: onCloseToast,
+                    onAccept: onAcceptToast,
+                  });
+            },
+          })
+      ),
+      {
+        id: userId,
+        duration: Infinity,
+        unstyled: true,
+      }
+  );
+};
+
+const notificationAlert = (title: string, description: string, type: string) => {
+  toast(
+      markRaw(
+          defineComponent({
+            setup() {
+              return () =>
+                  h(Notification, {
+                    title: title,
+                    description: description,
+                    type: type
+                  });
+            },
+          })
+      ),
+      {
+        duration: Infinity,
+        unstyled: true,
+      }
+  );
+}
+
+
 onMounted(() => {
-  // socket = io("https://portunis.pw");
-  socket = io("http://localhost:3001");
+  const socketURL = import.meta.env.VITE_API_SOCKET_URL;
+  socket = io(socketURL);
+
+  socket.on("requestJoin", ({ userId, userName }) => {
+    console.log('Запрос на подключение к комнате от:', userName)
+    openToast(userName, userId);
+  });
+
+  socket.on("joinApproved", ({ roomId }) => {
+    if (roomId === props.roomId) {
+      console.log('Комнаты совпали')
+      notificationAlert('Приглашение принято', `Комната № ${roomId}`)
+      joinCall()
+    }
+  });
 });
 onUnmounted(() => {
   socket.disconnect()

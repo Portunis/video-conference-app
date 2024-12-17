@@ -2,43 +2,40 @@
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/shared/ui/avatar";
 import {X,Check, Loader } from "lucide-vue-next";
-import {toast} from "vue-sonner";
-import {ref} from "vue";
 
 
 
+const emit = defineEmits(["close", "accept"]);
 
-const isLoader = ref(false)
 const props = defineProps({
   title: String,
   description: String,
+  isLoader: Boolean,
 
 })
-const onClose = () => {
 
-}
+
+const onClose = () => {
+  emit("close");
+};
+
 const onAccept = () => {
-  // toast.dismiss()
-  isLoader.value = true
-  setTimeout(() => {
-    toast.dismiss()
-    isLoader.value = false
-  }, 5000)
-}
+  emit("accept");
+};
 
 </script>
 
 <template>
-  <div class="notification-accept bg-neutral-100 dark:text-neutral-50 dark:white">
+  <div class="notification-accept bg-neutral-100 text-black dark:text-neutral-50 dark:white">
 
     <div class="notification-accept__top">
       <Avatar class="card-meeting__people-avatar h-8 w-8">
         <AvatarImage src="/avatars/01.png" alt="@shadcn" />
         <AvatarFallback>{{ title[0] }}</AvatarFallback>
       </Avatar>
-      <p class="notification-accept__title text-neutral-50 dark:text-black">{{title}}</p>
+      <p class="notification-accept__title text-black dark:text-black">{{title}}</p>
     </div>
-    <p class="notification-accept__description text-neutral-50 dark:text-black">{{description}}</p>
+    <p class="notification-accept__description text-black dark:text-black">{{description}}</p>
     <div class="notification-accept__actions">
       <div class="icon icon--red" @click="onClose">
         Отклонить

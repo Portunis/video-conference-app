@@ -13,6 +13,9 @@ backend/.idea
 frontend/node_modules
 frontend/.idea
 frontend/dist
+frontend/.env
+frontend/.env.local
+frontend/.env.production
 dist
 dist-ssr
 *.local
