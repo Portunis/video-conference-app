@@ -127,6 +127,15 @@
   &--remote:last-child:nth-child(odd) {
     transform: translateX(50%);
   }
+  &__poster {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+  }
 }
 
 
