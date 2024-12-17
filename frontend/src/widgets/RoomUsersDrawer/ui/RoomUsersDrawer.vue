@@ -61,43 +61,17 @@ watch(() => props.modelValue, (nexIsOpen) => {
                     <div class="ml-4 space-y-1">
                        <div class="flex items-center">
                          <p class="text-sm font-medium leading-none"> {{ user.user.username }} </p>
-                         <div class="drawer-dot"></div>
+                         <div class="relative inline-flex ml-2">
+                           <div class="w-2 h-2  rounded-full" :class="{ 'bg-green-600': user.status === 'online', 'bg-red-600': user.status === 'offline' }"></div>
+                           <div class="w-2 h-2  rounded-full absolute top-0 left-0 animate-ping" :class="{ 'bg-green-600': user.status === 'online', 'bg-red-600': user.status === 'offline' }"></div>
+                           <div class="w-2 h-2  rounded-full absolute top-0 left-0 animate-pulse" :class="{ 'bg-green-600': user.status === 'online', 'bg-red-600': user.status === 'offline' }"></div>
+                         </div>
                        </div>
-                        <p class="text-sm" v-if="user.user.userId === admin">Администратор</p>
-                        <p class="text-sm" v-else>Пользователь</p>
                     </div>
-                    <div class="ml-auto font-medium" :class="{ 'text-green-600': user.status === 'online', 'text-red-600': user.status === 'offline' }"> {{  user.status }} </div>
+                    <div class="ml-auto font-medium" > <p class="inline-flex items-center justify-between space-x-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-[4px] text-[8px]" v-if="user.user.userId === admin">Администратор</p>
+                      <p class="inline-flex items-center justify-between space-x-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-[4px] text-[8px]" v-else>Пользователь</p> </div>
                 </div>
             </div>
         </DrawerContent>
     </Drawer>
 </template>
-<style scoped lang="scss">
-.drawer-dot {
-  margin-left: 10px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: rgba(252, 3, 3);
-  transform: scale(1);
-  box-shadow: 0 0 0 rgba(0, 0, 0, 1);
-  animation: anim-vibrate 2s infinite;
-
-  @keyframes anim-vibrate {
-    0% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 rgba(252, 3, 3, 0.7);
-    }
-
-    70% {
-      transform: scale(1);
-      box-shadow: 0 0 0 0.3rem rgba(0, 0, 0, 0);
-    }
-
-    100% {
-      transform: scale(0.95);
-      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-    }
-  }
-}
-</style>
