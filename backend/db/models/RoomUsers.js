@@ -37,6 +37,14 @@ const RoomUser = sequelize.define('RoomUser', {
         type: DataTypes.STRING(255), // имя неавторизованного пользователя
         allowNull: true, // может быть null, если пользователь авторизован
     },
+    isAudioEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
+    isVideoEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
 });
 
 module.exports = RoomUser;

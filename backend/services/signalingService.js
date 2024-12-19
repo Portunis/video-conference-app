@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const { getAndCreateIfNotExist, setStatus, getRoomUsers } = require('../repository/roomUserRepository');
+const { getAndCreateIfNotExist, setStatus, getRoomUsers, updateMediaEnabled } = require('../repository/roomUserRepository');
 const users = {};
 const initIo = () => {
     const io = new Server(3001, {
@@ -65,10 +65,24 @@ const initIo = () => {
             socket.leave(data.roomId);
             socket.to(data.roomId).emit('userLeft', { userId: data.userId, userName: data.username });
         });
+
+        socket.on('sendToggleMedia', async ({ roomId, userId, isEnabled, kind }) => {
+            const isSuccess = await updateMediaEnabled({ roomId, userId, isEnabled, kind })
+            if (isSuccess) {
+                const roomUsers = await getRoomUsers({ roomId: socket.userData.roomId })
+                io.to(socket.userData.roomId).emit('users', { users: roomUsers })
+            }
+        })
     
         socket.on('disconnect', async () => {
             if (socket.userData) {
                 await setStatus({ roomUserId: socket.userData.roomUserId, status: 'offline' })
+                
+                await Promise.all([
+                    updateMediaEnabled({ roomId, userId, isEnabled: true, kind: 'audio' }),
+                    updateMediaEnabled({ roomId, userId, isEnabled: true, kind: 'video' })
+                ])
+
                 io.to(socket.userData.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
                 const roomUsers = await getRoomUsers({ roomId: socket.userData.roomId })
                 io.to(socket.userData.roomId).emit('users', { users: roomUsers })

@@ -1,8 +1,5 @@
 const RoomUser = require('../db/models/RoomUsers');
 const User = require('../db/models/User');
-// const Room = require('../db/models/Room');
-// const User = require('../db/models/User');
-
 
 const getAndCreateIfNotExist = async ({ roomId, userId }) => {
     console.log('RoomUser', RoomUser, Object.keys(RoomUser))
@@ -71,4 +68,23 @@ const getRoomUsers = async ({ roomId }) => {
     }
 }
 
-module.exports = { getAndCreateIfNotExist, setStatus, getRoomUsers };
+const updateMediaEnabled = async ({ roomId, userId, isEnabled, kind }) => {
+    try {
+        const key = kind === 'video' ? 'isVideoEnabled' : 'isAudioEnabled';
+        const [updatedRowsCount] = await RoomUser.update({
+            [key]: isEnabled
+       },
+       {
+            where: {
+                roomId,
+                userId
+            }
+       })
+
+       return !!updatedRowsCount
+    } catch (e) {
+        console.error('updateMediaEnabled', e)
+    }
+}
+
+module.exports = { getAndCreateIfNotExist, setStatus, getRoomUsers, updateMediaEnabled };
