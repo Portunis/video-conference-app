@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TUser } from '@/entities/User/model/interfaces/IUser';
 import Avatar from '@/shared/ui/avatar/Avatar.vue';
 import AvatarFallback from '@/shared/ui/avatar/AvatarFallback.vue';
 import {
@@ -9,19 +10,6 @@ import {
     DrawerTitle,
 } from '@/shared/ui/drawer'
 import { ref, watch } from 'vue';
-
-enum EUserStatus {
-    ONLINE = 'online',
-    OFFLINE = 'offline'
-}
-
-type TUser = {
-    userId: string;
-    status: EUserStatus
-    user: {
-        username: string;
-    }
-}
 
 type TProps = {
     modelValue: boolean

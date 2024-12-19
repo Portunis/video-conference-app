@@ -141,7 +141,7 @@
 
 .video__label {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
@@ -150,9 +150,13 @@
   color: #fff;
   border-radius: 12px;
   background-color:rgba(30, 30, 30, 0.5);
-  
+  display: flex;
+  gap: 10px;
+}
+
+.video__label-text {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;  
   overflow: hidden;
 }
@@ -239,6 +243,9 @@ video {
   }
 }
 @media screen and (min-width: 768px) {
+  .remote-video-one {
+    border-radius: 10px;
+  }
   .video {
     width: 300px;
     &--remote:last-child:nth-child(odd) {

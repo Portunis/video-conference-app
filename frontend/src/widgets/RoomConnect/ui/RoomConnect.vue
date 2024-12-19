@@ -8,6 +8,7 @@
         <p class="room__header-user" v-for="(stream, userId) in remoteStreams">
           {{ stream.name }}
         </p>
+        <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
       </div>
       <div class="room__header-controls">
         <div class="room__header-control">
@@ -48,11 +49,14 @@
         class="video video--remote"
         :class="{ 'remote-video-one': isOneRemoteUser }"
       >
-        <span class="video__label" v-if="!isOneRemoteUser">{{
+        <span v-if="!isOneRemoteUser" class="video__label" >
+          <span class="video__label-text">{{
           stream.name
         }}</span>
+          <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
+        </span>
         <div
-          v-if="!stream.isVideoEnabled"
+          v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isVideoEnabled"
           class="video__poster"
           :style="{ backgroundColor: localColor }"
         >
@@ -126,6 +130,7 @@ import { Notification } from "@/shared/ui/notification";
 import {toast} from "vue-sonner";
 import Avatar from "@/shared/ui/avatar/Avatar.vue";
 import AvatarFallback from "@/shared/ui/avatar/AvatarFallback.vue";
+import { TUser } from "@/entities/User/model/interfaces/IUser";
 
 const getRandomBrightColorHex = () => {
   const r = Math.floor(Math.random() * 156) + 100; // Красный: от 100 до 255
@@ -143,7 +148,7 @@ const props = defineProps({
   isUserRoom: Boolean,
 });
 
-const roomUsers = ref([]);
+const roomUsers = ref<TUser[]>([]);
 let socket = null;
 let localStream = ref<MediaStream | null>(null);
 let peerConnections = {};
@@ -305,19 +310,6 @@ const gotRemoteStream = (event, peerUuid, userName) => {
   remoteStreams.value[peerUuid].stream = event.streams[0];
   remoteStreams.value[peerUuid].name = userName;
   remoteStreams.value[peerUuid].color = getRandomBrightColorHex();
-
-
-  if (remoteStreams.value[peerUuid].videoInterval) {
-    clearInterval(remoteStreams.value[peerUuid].videoInterval)
-  }
-
-  // todo
-  remoteStreams.value[peerUuid].videoInterval = setInterval(() => {
-    remoteStreams.value[peerUuid].isVideoEnabled = (remoteStreams.value[peerUuid].stream as MediaStream).getVideoTracks()[0].enabled
-    console.log('(remoteStreams.value[peerUuid].stream as MediaStream).getVideoTracks()[0].enabled', (remoteStreams.value[peerUuid].stream as MediaStream).getTracks())
-  }, 500)
-
-  remoteAudioMuted.value[peerUuid] = true; // Изначально аудио не отключено
 };
 
 const checkPeerDisconnect = (event, peerUuid) => {
@@ -404,7 +396,9 @@ const toggleLocalVideo = () => {
   const videoTrack = localStream.value?.getTracks()
     .find((track) => track.kind === "video");
   if (videoTrack) {
-    videoTrack.enabled = !isLocalVideoMuted.value;
+    const nextEnabled = !isLocalVideoMuted.value;
+    videoTrack.enabled = nextEnabled;
+    socket.emit('sendToggleMedia', { roomId: props.roomId, userId: props.userId, isEnabled: nextEnabled, kind: 'video' })
   }
 };
 
@@ -413,7 +407,9 @@ const toggleLocalAudio = () => {
   const audioTrack = localStream.value?.getTracks()
     .find((track) => track.kind === "audio");
   if (audioTrack) {
-    audioTrack.enabled = !isLocalAudioMuted.value;
+    const nextEnabled = !isLocalVideoMuted.value;
+    audioTrack.enabled = nextEnabled;
+    socket.emit('sendToggleMedia', { roomId: props.roomId, userId: props.userId, isEnabled: nextEnabled, kind: 'audio' })
   }
 };
 
