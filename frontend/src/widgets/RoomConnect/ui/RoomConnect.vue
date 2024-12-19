@@ -9,8 +9,8 @@
           <p class="room__header-user text-white" >
             {{ stream.name }}
           </p>
-          <div class="room__header-control cursor-pointer border-[1px] bg-black">
-            <MicOff class="h-4 w-4 text-text-black dark:text-white" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" />
+          <div class="room__header-control cursor-pointer border-[1px] bg-black" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled">
+            <MicOff class=" text-white" :width="12" :height="12"  />
           </div>
         </template>
       </div>
@@ -83,7 +83,6 @@
         <!--        </div>-->
       </div>
     </div>
-
     <div v-if="inCall" class="controls-video">
       <div class="controls-video__header">
         <div @click="toggleLocalVideo" class="icon">
@@ -134,6 +133,7 @@ import {toast} from "vue-sonner";
 import Avatar from "@/shared/ui/avatar/Avatar.vue";
 import AvatarFallback from "@/shared/ui/avatar/AvatarFallback.vue";
 import { TUser } from "@/entities/User/model/interfaces/IUser";
+import {CopyDialog} from "@/widgets/CopyDialog";
 
 const getRandomBrightColorHex = () => {
   const r = Math.floor(Math.random() * 156) + 100; // Красный: от 100 до 255
