@@ -9,7 +9,9 @@
           <p class="room__header-user text-white" >
             {{ stream.name }}
           </p>
-          <MicOff class="h-4 w-4 text-text-black dark:text-white" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" />
+          <div class="room__header-control cursor-pointer border-[1px] bg-black">
+            <MicOff class="h-4 w-4 text-text-black dark:text-white" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" />
+          </div>
         </template>
       </div>
       <div class="room__header-controls">
