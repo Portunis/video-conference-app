@@ -407,7 +407,7 @@ const toggleLocalAudio = () => {
   const audioTrack = localStream.value?.getTracks()
     .find((track) => track.kind === "audio");
   if (audioTrack) {
-    const nextEnabled = !isLocalVideoMuted.value;
+    const nextEnabled = !isLocalAudioMuted.value;
     audioTrack.enabled = nextEnabled;
     socket.emit('sendToggleMedia', { roomId: props.roomId, userId: props.userId, isEnabled: nextEnabled, kind: 'audio' })
   }
