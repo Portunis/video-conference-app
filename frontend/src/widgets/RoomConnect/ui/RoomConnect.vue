@@ -5,10 +5,12 @@
         <div class="room__header-control">
           <ChevronLeft @click="leaveCall" :width="12" :height="12" />
         </div>
-        <p class="room__header-user" v-for="(stream, userId) in remoteStreams">
-          {{ stream.name }}
-        </p>
-        <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
+        <template v-for="(stream, userId) in remoteStreams">
+          <p class="room__header-user" >
+            {{ stream.name }}
+          </p>
+          <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
+        </template>
       </div>
       <div class="room__header-controls">
         <div class="room__header-control">
