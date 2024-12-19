@@ -79,8 +79,8 @@ const initIo = () => {
                 await setStatus({ roomUserId: socket.userData.roomUserId, status: 'offline' })
                 
                 await Promise.all([
-                    updateMediaEnabled({ roomId, userId, isEnabled: true, kind: 'audio' }),
-                    updateMediaEnabled({ roomId, userId, isEnabled: true, kind: 'video' })
+                    updateMediaEnabled({ roomId: socket.userData.roomId, userId: socket.userData.userId, isEnabled: true, kind: 'audio' }),
+                    updateMediaEnabled({ roomId: socket.userData.roomId, userId: socket.userData.userId, isEnabled: true, kind: 'video' })
                 ])
 
                 io.to(socket.userData.roomId).emit('userLeft', { userId: socket.userData.userId, userName: socket.userData.userName });
