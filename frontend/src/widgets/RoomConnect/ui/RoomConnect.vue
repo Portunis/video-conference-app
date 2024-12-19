@@ -2,8 +2,8 @@
   <div class="room">
     <div class="room__header" v-if="inCall">
       <div class="room__header-controls" v-if="isOneRemoteUser">
-        <div class="room__header-control">
-          <ChevronLeft @click="leaveCall" :width="12" :height="12" />
+        <div class="room__header-control cursor-pointer" @click="leaveCall">
+          <ChevronLeft :width="12" :height="12" />
         </div>
         <template v-for="(stream, userId) in remoteStreams">
           <p class="room__header-user" >
@@ -13,9 +13,9 @@
         </template>
       </div>
       <div class="room__header-controls">
-        <div class="room__header-control">
-          <SwitchCamera :width="12" :height="12" />
-        </div>
+        <!-- <div class="room__header-control"> -->
+          <!-- <SwitchCamera :width="12" :height="12" /> -->
+        <!-- </div> -->
       </div>
     </div>
     <!--    <h1>Видеозвонок в комнате: {{ roomId }}</h1>-->
@@ -60,7 +60,7 @@
         <div
           v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isVideoEnabled"
           class="video__poster"
-          :style="{ backgroundColor: localColor }"
+          :style="{ backgroundColor: stream.color }"
         >
           <Avatar class="video__poster-avatar h-14 w-14">
             <AvatarFallback>{{ stream.name?.[0]?.toUpperCase() || '' }}</AvatarFallback>
@@ -70,7 +70,6 @@
           :id="'video-' + userId"
           autoplay
           playsinline
-          :style="{ backgroundColor: stream.color }"
           :srcObject="stream.stream"
         />
 
