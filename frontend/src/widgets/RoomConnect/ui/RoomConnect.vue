@@ -52,7 +52,7 @@
           stream.name
         }}</span>
         <div
-          v-if="!stream.stream?.getVideoTracks()?.[0]?.enabled"
+          v-if="!stream.isVideoEnabled"
           class="video__poster"
           :style="{ backgroundColor: localColor }"
         >
@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, defineComponent, h, markRaw, onMounted, onUnmounted, ref} from "vue";
+import {computed, defineComponent, h, markRaw, onMounted, onUnmounted, ref } from "vue";
 import { io } from "socket.io-client";
 import { Button } from "@/shared/ui/button";
 import {
@@ -250,8 +250,10 @@ const setUpPeer = (peerUuid, displayName, initCall = false) => {
   };
   peerConnections[peerUuid].pc.onicecandidate = (event) =>
     gotIceCandidate(event, peerUuid);
-  peerConnections[peerUuid].pc.ontrack = (event) =>
-    gotRemoteStream(event, peerUuid, displayName);
+  peerConnections[peerUuid].pc.ontrack = (event) => {
+    console.log('event', event)
+    gotRemoteStream(event, peerUuid, displayName)
+  };
   peerConnections[peerUuid].pc.oniceconnectionstatechange = (event) =>
     checkPeerDisconnect(event, peerUuid);
   localStream.value?.getTracks()
@@ -303,6 +305,18 @@ const gotRemoteStream = (event, peerUuid, userName) => {
   remoteStreams.value[peerUuid].stream = event.streams[0];
   remoteStreams.value[peerUuid].name = userName;
   remoteStreams.value[peerUuid].color = getRandomBrightColorHex();
+
+
+  if (remoteStreams.value[peerUuid].videoInterval) {
+    clearInterval(remoteStreams.value[peerUuid].videoInterval)
+  }
+
+  // todo
+  remoteStreams.value[peerUuid].videoInterval = setInterval(() => {
+    remoteStreams.value[peerUuid].isVideoEnabled = (remoteStreams.value[peerUuid].stream as MediaStream).getVideoTracks()[0].enabled
+    console.log('(remoteStreams.value[peerUuid].stream as MediaStream).getVideoTracks()[0].enabled', (remoteStreams.value[peerUuid].stream as MediaStream).getTracks())
+  }, 500)
+
   remoteAudioMuted.value[peerUuid] = true; // Изначально аудио не отключено
 };
 
