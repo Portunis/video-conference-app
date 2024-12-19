@@ -8,7 +8,7 @@
     align-items: center;
   }
   &__header-user {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(97, 97, 97, 0.55);
     padding: 3px 12px;
     border-radius: 29px;
     font-weight: 700;
@@ -19,7 +19,7 @@
     text-overflow: ellipsis;
   }
   &__header-control {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(97, 97, 97, 0.55);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -63,7 +63,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 25px;
+    gap: 16px;
   }
   &__footer {
     margin-top: 30px;
@@ -261,6 +261,9 @@ video {
     bottom: 20px;
     margin: 0 auto;
     border-radius: 25px;
+    &__header,&__footer {
+      gap: 25px;
+    }
   }
   .video-container{
     display: grid;
@@ -271,4 +274,15 @@ video {
     grid-auto-rows: 300px;
   }
 
+
+}
+.dark {
+  .room {
+    &__header-user {
+      background: rgba(97, 97, 97, 0.55);
+    }
+    &__header-control {
+      background: rgba(97, 97, 97, 0.55);
+    }
+  }
 }

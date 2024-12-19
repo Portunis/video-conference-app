@@ -2,14 +2,14 @@
   <div class="room">
     <div class="room__header" v-if="inCall">
       <div class="room__header-controls" v-if="isOneRemoteUser">
-        <div class="room__header-control cursor-pointer" @click="leaveCall">
-          <ChevronLeft :width="12" :height="12" />
+        <div class="room__header-control cursor-pointer border-[1px] bg-black" @click="leaveCall">
+          <ChevronLeft :width="12" :height="12" class="text-white" />
         </div>
         <template v-for="(stream, userId) in remoteStreams">
-          <p class="room__header-user" >
+          <p class="room__header-user text-white" >
             {{ stream.name }}
           </p>
-          <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
+          <MicOff class="h-4 w-4 text-text-black dark:text-white" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" />
         </template>
       </div>
       <div class="room__header-controls">
