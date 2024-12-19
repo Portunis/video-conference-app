@@ -380,22 +380,23 @@ const requestAcceptToRoom = () => {
 }
 
 const joinCall = async () => {
-  await startLocalStream();
+  await startLocalStream().then(() => {
+    socket.on('users', onGetUsers)
 
-  socket.on('users', onGetUsers)
-  // Отправляем запрос на присоединение к комнате
+    socket.emit("joinRoom2", {
+      roomId: props.roomId,
+      userId: props.userId,
+      userName: props.userName,
+      isUserRoom: true,
+      isAdmin: isAdmin.value
+    });
 
-  socket.emit("joinRoom2", {
-    roomId: props.roomId,
-    userId: props.userId,
-    userName: props.userName,
-    isUserRoom: true,
-    isAdmin: isAdmin.value
-  });
-
-  setTimeout(() => {
-    start();
-  }, 2000);
+    setTimeout(() => {
+      start();
+    }, 2000);
+  }).catch(() => {
+    notificationAlert('Ошибка подключения', 'У вас отсутствует камера. На данный момент мы не можем Вас подключить')
+  })
 };
 
 const toggleLocalVideo = () => {
@@ -486,7 +487,7 @@ const notificationAlert = (title: string, description: string, type: string) => 
           })
       ),
       {
-        duration: Infinity,
+        duration: 5000,
         unstyled: true,
       }
   );
