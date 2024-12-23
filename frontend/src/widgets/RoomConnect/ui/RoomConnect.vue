@@ -28,6 +28,8 @@
         :animation-data="LoaderVideo"
         :loop="true"
       />
+      <p class="mt-5" v-if="isNotApprove">Ожидайте подтверждения</p>
+      <Loader v-if="isNotApprove" class="loader mt-5"/>
       <Button v-if="!isNotApprove" class="mt-5" @click="requestAcceptToRoom">Присоединиться к звонку</Button>
     </div>
     <div v-show="inCall" class="video local-video">
@@ -121,7 +123,7 @@ import {
   MessageCircle,
   SwitchCamera,
   ChevronLeft,
-  UserRoundSearch
+  UserRoundSearch, Loader
 } from "lucide-vue-next";
 import { LottieAnimation } from "lottie-web-vue";
 import LoaderVideo from "@/shared/lottie/loader-video.json";
@@ -438,11 +440,12 @@ const openToast = (userName, userId) => {
 
               const onCloseToast = () => {
                 toast.dismiss(userId)
+                socket.emit("approveJoin", {  roomId: props.roomId, userId: userId,  userName, isApprove: false })
               };
 
               const onAcceptToast = () => {
                 isLoader.value = true;
-                socket.emit("approveJoin", {  roomId: props.roomId, userId: userId,  userName, })
+                socket.emit("approveJoin", {  roomId: props.roomId, userId: userId,  userName, isApprove: true })
 
                   setTimeout(() => {
                     isLoader.value = false;
@@ -454,9 +457,9 @@ const openToast = (userName, userId) => {
 
               return () =>
                   h(NotificationAccept, {
-                    title: `Запрос от ${userName}`,
+                    title: `${userName}`,
                     description: "Хотите разрешить вход?",
-                    isLoader: isLoader,
+                    isLoader: isLoader.value,
                     onClose: onCloseToast,
                     onAccept: onAcceptToast,
                   });
@@ -502,11 +505,15 @@ onMounted(() => {
     openToast(userName, userId);
   });
 
-  socket.on("joinApproved", ({ roomId }) => {
-    if (roomId === props.roomId) {
+  socket.on("joinApproved", ({ roomId , isApprove}) => {
+    if ((roomId === props.roomId) && isApprove) {
       console.log('Комнаты совпали')
       notificationAlert('Приглашение принято', `Комната № ${roomId}`)
       joinCall()
+    }
+    if ((roomId === props.roomId) && !isApprove) {
+      notificationAlert('Приглашение отклонено', `Комната № ${roomId}`)
+      isNotApprove.value = false
     }
   });
 });

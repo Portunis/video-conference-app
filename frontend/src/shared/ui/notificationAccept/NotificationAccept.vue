@@ -7,7 +7,9 @@ import {X,Check, Loader } from "lucide-vue-next";
 
 const emit = defineEmits(["close", "accept"]);
 
-const props = defineProps({
+
+
+defineProps({
   title: String,
   description: String,
   isLoader: Boolean,
@@ -33,7 +35,7 @@ const onAccept = () => {
         <AvatarImage src="/avatars/01.png" alt="@shadcn" />
         <AvatarFallback>{{ title[0] }}</AvatarFallback>
       </Avatar>
-      <p class="notification-accept__title text-black dark:text-black">{{title}}</p>
+      <p class="notification-accept__title text-black dark:text-black">Запрос от {{title}}</p>
     </div>
     <p class="notification-accept__description text-black dark:text-black">{{description}}</p>
     <div class="notification-accept__actions">

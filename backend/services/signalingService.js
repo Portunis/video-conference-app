@@ -90,7 +90,7 @@ const initIo = () => {
             }
             console.log('User disconnected:', socket.id);
         });
-        socket.on("approveJoin", ({ roomId, userId, userName }) => {
+        socket.on("approveJoin", ({ roomId, userId, userName, isApprove }) => {
             if (!roomId || !userId || !userName) {
                 console.error("Некорректные данные: roomId, userId или userName отсутствуют. approve");
                 return;
@@ -107,7 +107,7 @@ const initIo = () => {
 
             user.forEach(([userSocketId]) => {
                 if (io.sockets.sockets.get(userSocketId)) {
-                    io.to(userSocketId).emit("joinApproved", { roomId, });
+                    io.to(userSocketId).emit("joinApproved", { roomId, isApprove});
                 } else {
                     console.warn(`Сокет с ID ${userSocketId} недоступен.`);
                 }
