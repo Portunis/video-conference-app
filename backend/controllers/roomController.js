@@ -38,7 +38,11 @@ const getRoomInfo = async (req, res) => {
     const { roomId } = req.params;
 
     try {
-        const room = await Room.findByPk(roomId, { include: User });
+        const room = await Room.findByPk(roomId, {
+            include: [{
+                model: User,
+                through: {attributes: ['status', 'userId']},
+            }], });
         if (!room) {
             return res.status(404).json({ message: 'Room not found' });
         }

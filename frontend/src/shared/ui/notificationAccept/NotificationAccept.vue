@@ -33,7 +33,7 @@ const onAccept = () => {
     <div class="notification-accept__top">
       <Avatar class="card-meeting__people-avatar h-8 w-8">
         <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-        <AvatarFallback>{{ title[0] }}</AvatarFallback>
+        <AvatarFallback class="uppercase">{{ title[0] }}</AvatarFallback>
       </Avatar>
       <p class="notification-accept__title text-black dark:text-black">Запрос от {{title}}</p>
     </div>

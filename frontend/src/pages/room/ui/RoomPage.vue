@@ -42,7 +42,7 @@ const getRooms = async () => {
 
 const findByUserRoom = () => {
   const room = rooms.value.find((item) => item.roomId === queryParams.id);
-  isUserRoom.value = !!room.Users.find((item) => item.userId === user.value.userId);
+  isUserRoom.value = !!room?.Users.find((item) => item.userId === user.value.userId);
 }
 
 Promise.all([

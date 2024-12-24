@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "mobile": "npm run build & npx cap sync",
+    "ios": "npm run mobile & npx cap open ios",
+    "android": "npm run mobile & npx cap open android"
+
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",

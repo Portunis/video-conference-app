@@ -142,7 +142,7 @@ onMounted(() => {
                       v-for="user in room.Users.slice(0,4)"
                     >
                       <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                      <AvatarFallback>{{ user.username[0] || '' }}</AvatarFallback>
+                      <AvatarFallback class="uppercase">{{ user.username[0] || '' }}</AvatarFallback>
                     </Avatar>
                     <Avatar v-if="(room.Users.length - 4) > 0" class="card-meeting__people-avatar h-8 w-8">
                       <AvatarImage src="/avatars/01.png" alt="@shadcn" />

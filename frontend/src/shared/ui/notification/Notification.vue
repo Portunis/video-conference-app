@@ -1,9 +1,10 @@
 <script setup lang="ts">
 
-const props = defineProps({
-  title: String,
-  description: String,
-  type: String
+import {PropType} from "vue";
+
+defineProps({
+  title: String as PropType<string>,
+  description: String as PropType<string>
 })
 
 

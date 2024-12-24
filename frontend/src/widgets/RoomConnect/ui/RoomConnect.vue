@@ -121,7 +121,6 @@ import {
   MicOff,
   X,
   MessageCircle,
-  SwitchCamera,
   ChevronLeft,
   UserRoundSearch, Loader
 } from "lucide-vue-next";
@@ -135,7 +134,8 @@ import {toast} from "vue-sonner";
 import Avatar from "@/shared/ui/avatar/Avatar.vue";
 import AvatarFallback from "@/shared/ui/avatar/AvatarFallback.vue";
 import { TUser } from "@/entities/User/model/interfaces/IUser";
-import {CopyDialog} from "@/widgets/CopyDialog";
+import axios from "@/shared/api/api.ts";
+
 
 const getRandomBrightColorHex = () => {
   const r = Math.floor(Math.random() * 156) + 100; // Красный: от 100 до 255
@@ -154,6 +154,7 @@ const props = defineProps({
 });
 
 const roomUsers = ref<TUser[]>([]);
+const isAdminOffline = ref(true)
 let socket = null;
 let localStream = ref<MediaStream | null>(null);
 let peerConnections = {};
@@ -360,8 +361,29 @@ const onGetUsers = ({ users }) => {
   roomUsers.value = users
 }
 
+const getUsersRoom = async () => {
+  try {
+    const response = await axios.get(`/api/rooms/${props.roomId}`);
+    const findAdmin = response.data.Users.find((item) => item.RoomUsers.userId === props.admin)
+    if (findAdmin.RoomUsers.status === 'offline') {
+      isAdminOffline.value = true
+    }
+
+  } catch (error) {
+    console.error('Error fetching rooms users:', error);
+  }
+}
+
+
+
+
 const requestAcceptToRoom = () => {
-  if (!props.isUserRoom && !isAdmin.value ) {
+  getUsersRoom()
+  if (isAdminOffline.value && !isAdmin.value) {
+    notificationAlert('Администрация отсутствует', `Комната № ${props.roomId}`)
+    return;
+  }
+  if (!props.isUserRoom && !isAdmin.value) {
     socket.emit("joinRoom2", {
       roomId: props.roomId,
       userId: props.userId,
@@ -474,7 +496,7 @@ const openToast = (userName, userId) => {
   );
 };
 
-const notificationAlert = (title: string, description: string, type: string) => {
+const notificationAlert = (title: string, description: string) => {
   toast(
       markRaw(
           defineComponent({
@@ -483,7 +505,6 @@ const notificationAlert = (title: string, description: string, type: string) => 
                   h(Notification, {
                     title: title,
                     description: description,
-                    type: type
                   });
             },
           })

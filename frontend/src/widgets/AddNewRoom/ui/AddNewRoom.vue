@@ -46,7 +46,7 @@ const handleRoomConnect = async () => {
 <div class="add-new-room flex flex-col sm:grid grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
   <Dialog v-model:open="isOpenCreateRoom">
     <DialogTrigger as-child>
-      <Button variant="outline">
+      <Button >
         Добавить комнату
       </Button>
     </DialogTrigger>
@@ -71,7 +71,7 @@ const handleRoomConnect = async () => {
   </Dialog>
   <Dialog v-model:open="isOpenConnectRoom">
     <DialogTrigger as-child>
-      <Button variant="outline">
+      <Button>
         Присоединиться
       </Button>
     </DialogTrigger>
@@ -88,7 +88,7 @@ const handleRoomConnect = async () => {
         </div>
       </div>
       <DialogFooter>
-        <Button type="submit" @click="handleRoomConnect">
+        <Button type="submit" @click="handleRoomConnect" >
           Войти
         </Button>
       </DialogFooter>
@@ -98,5 +98,4 @@ const handleRoomConnect = async () => {
 </template>
 
 <style scoped lang="scss">
-
 </style>
