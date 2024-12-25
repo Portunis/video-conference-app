@@ -367,7 +367,9 @@ const getUsersRoom = async () => {
     const findAdmin = response.data.Users.find((item) => item.RoomUsers.userId === props.admin)
     if (findAdmin.RoomUsers.status === 'offline') {
       isAdminOffline.value = true
+      return
     }
+    isAdminOffline.value = false
 
   } catch (error) {
     console.error('Error fetching rooms users:', error);
@@ -377,25 +379,27 @@ const getUsersRoom = async () => {
 
 
 
-const requestAcceptToRoom = () => {
-  getUsersRoom()
-  if (isAdminOffline.value && !isAdmin.value) {
-    notificationAlert('Администрация отсутствует', `Комната № ${props.roomId}`)
-    return;
-  }
-  if (!props.isUserRoom && !isAdmin.value) {
-    socket.emit("joinRoom2", {
-      roomId: props.roomId,
-      userId: props.userId,
-      userName: props.userName,
-      isUserRoom: props.isUserRoom,
-      isAdmin: isAdmin.value
-    });
-    isNotApprove.value = true
-    notificationAlert('Приглашение отправлено', `Комната № ${props.roomId}`)
-    return
-  }
-  joinCall()
+const requestAcceptToRoom = async () => {
+  await getUsersRoom().then(() => {
+    if (isAdminOffline.value && !isAdmin.value) {
+      notificationAlert('Администрация отсутствует', `Комната № ${props.roomId}`)
+      return;
+    }
+    if (!props.isUserRoom && !isAdmin.value) {
+      socket.emit("joinRoom2", {
+        roomId: props.roomId,
+        userId: props.userId,
+        userName: props.userName,
+        isUserRoom: props.isUserRoom,
+        isAdmin: isAdmin.value
+      });
+      isNotApprove.value = true
+      notificationAlert('Приглашение отправлено', `Комната № ${props.roomId}`)
+      return
+    }
+    joinCall()
+  })
+
 }
 
 const joinCall = async () => {
