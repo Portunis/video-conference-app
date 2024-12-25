@@ -97,6 +97,7 @@ const onAccept = () => {
   gap: 5px;
   min-width: 150px;
   justify-content: center;
+  color: #fff;
 
   &--red {
     background: #EB5545;

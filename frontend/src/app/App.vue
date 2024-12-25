@@ -5,7 +5,7 @@ import AppLayout from './layouts/ui/AppLayout.vue'
 import ToasterNotification from '@/shared/ui/toast/Toaster.vue'
 import { setTheme } from '@/shared/utils/setTheme'
 import { Toaster } from '@/shared/ui/sonner'
-
+import { App } from '@capacitor/app';
 
 
 setTheme()
@@ -24,6 +24,13 @@ onMounted(() => {
   window.addEventListener('orientationchange', () => {
     calcVh()
   })
+  App.addListener('backButton', ({canGoBack}) => {
+    if (canGoBack) {
+      window.history.back();
+    } else {
+      App.exitApp().catch(e => console.error(e));
+    }
+  });
 })
 </script>
 

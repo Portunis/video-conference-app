@@ -43,6 +43,12 @@
     height: 400px;
     margin-top: 20px;
   }
+  &__header-actions {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-left: 20px;
+  }
 }
 .controls-video {
   position: fixed;
