@@ -40,11 +40,11 @@ const initIo = () => {
                 // }
 
 
-                socket.join(data.roomId)
                 socket.userData = data
                 const roomUser = await getAndCreateIfNotExist({ roomId: data.roomId, userId: data.userId })
                 socket.userData.roomUserId = roomUser.roomUserId
                 await setStatus({ roomUserId: roomUser.roomUserId, status: 'online' })
+                socket.join(data.roomId)
 
                 const roomUsers = await getRoomUsers({ roomId: data.roomId })
                 io.to(data.roomId).emit('users', { users: roomUsers })
