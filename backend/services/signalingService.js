@@ -22,22 +22,22 @@ const initIo = () => {
                 users[socket.id] = data;
                 console.log('user data', data)
                 console.log('users', users);
-                // if (!data.isUserRoom && !data.isAdmin) {
-                //     console.log('Запрос на вход от:', data.userId)
-                //     const admins = Object.entries(users).filter(
-                //         ([, user]) => user.isAdmin && (data.roomId === user.roomId)
-                //     );
-                //     console.log('админы', admins)
-                //     admins.forEach(([adminSocketId]) => {
-                //         if (io.sockets.sockets.get(adminSocketId)) {
-                //             console.log('Socket ушел на запрос')
-                //             io.to(adminSocketId).emit("requestJoin", { userId: data.userId, userName: data.userName });
-                //         } else {
-                //             console.warn(`Сокет с ID ${adminSocketId} недоступен.`);
-                //         }
-                //     });
-                //     return
-                // }
+                if (!data.isUserRoom && !data.isAdmin) {
+                    console.log('Запрос на вход от:', data.userId)
+                    const admins = Object.entries(users).filter(
+                        ([, user]) => user.isAdmin && (data.roomId === user.roomId)
+                    );
+                    console.log('админы', admins)
+                    admins.forEach(([adminSocketId]) => {
+                        if (io.sockets.sockets.get(adminSocketId)) {
+                            console.log('Socket ушел на запрос')
+                            io.to(adminSocketId).emit("requestJoin", { userId: data.userId, userName: data.userName });
+                        } else {
+                            console.warn(`Сокет с ID ${adminSocketId} недоступен.`);
+                        }
+                    });
+                    return
+                }
 
 
                 socket.userData = data
@@ -48,14 +48,15 @@ const initIo = () => {
 
                 const roomUsers = await getRoomUsers({ roomId: data.roomId })
                 io.to(data.roomId).emit('users', { users: roomUsers })
+
+                socket.on('webrtcSend', (data) => {
+                    io.to(data.roomId).emit('webrtcRecieve', data)
+                    console.log('data socket connect', data)
+                })
             }
         })
-    
-        socket.on('webrtcSend', (data) => {
-            io.to(data.roomId).emit('webrtcRecieve', data)
-            console.log('data socket connect', data)
-        })
-    
+
+
         socket.on('leaveRoom', (data) => {
             if (!data || !data.roomId || !data.userId) {
                 console.error('Некорректные данные для leaveRoom:', data);

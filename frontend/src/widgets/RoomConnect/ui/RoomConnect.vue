@@ -30,7 +30,7 @@
       />
       <p class="mt-5" v-if="isNotApprove">Ожидайте подтверждения</p>
       <Loader v-if="isNotApprove" class="loader mt-5"/>
-      <Button v-if="!isNotApprove" class="mt-5" @click="joinCall">Присоединиться к звонку</Button>
+      <Button v-if="!isNotApprove" class="mt-5" @click="requestAcceptToRoom">Присоединиться к звонку</Button>
     </div>
     <div v-show="inCall" class="video local-video">
       <div
