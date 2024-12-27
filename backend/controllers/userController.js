@@ -2,6 +2,8 @@ const User = require('../db/models/User');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const { validationResult } = require('express-validator');
+const Room = require("../db/models/Room");
+const {getAndCreateIfNotExist} = require("../repository/roomUserRepository");
 const JWT_EXPIRATION = '365d';
 const JWT_REFRESH_EXPIRATION = '365d';
 const registerUser = async (req, res) => {
@@ -21,6 +23,16 @@ const registerUser = async (req, res) => {
 
 
         const newUser = await User.create({ username, password, email });
+
+        const room = await Room.create({
+            roomName: username,
+            createdBy: newUser.userId
+        });
+
+        await getAndCreateIfNotExist({
+            userId: newUser.userId,
+            roomId: room.roomId
+        })
 
         const token = jwt.sign(
             { userId: newUser.userId },

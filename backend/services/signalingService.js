@@ -114,6 +114,9 @@ const initIo = () => {
                 }
             });
         });
+        socket.on("audioDetect", ({ roomId, userId, isSpeaking }) => {
+           socket.broadcast.emit('userSpeak', { roomId, userId, isSpeaking });
+        });
     })
 }
 

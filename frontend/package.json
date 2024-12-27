@@ -20,6 +20,7 @@
     "@capacitor/device": "^6.0.2",
     "@capacitor/ios": "^6.2.0",
     "@capacitor/splash-screen": "^6.0.3",
+    "@jitsi/vue-sdk": "^1.0.4",
     "@radix-icons/vue": "^1.0.0",
     "@supabase/supabase-js": "^2.39.6",
     "@vee-validate/zod": "^4.14.6",

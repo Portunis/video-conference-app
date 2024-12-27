@@ -191,6 +191,7 @@ video {
   z-index: 9999;
   transition: top 0.3s ease, left 0.3s ease;
   cursor: grab;
+  border: 2px solid transparent;
 }
 
 .local-video:active {
@@ -305,4 +306,8 @@ video {
   to {
     transform:rotate(360deg);
   }
+}
+
+.is-active-speak {
+  border: 2px solid #61ff72;
 }

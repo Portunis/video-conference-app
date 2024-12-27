@@ -33,82 +33,84 @@
       <Button v-if="!isNotApprove" class="mt-5" @click="requestAcceptToRoom">Присоединиться к звонку</Button>
       <Button v-if="!isNotApprove" class="mt-5" @click="leaveCall">Вернуться назад</Button>
     </div>
-    <div v-show="inCall" class="video local-video">
-      <div
-        v-if="!localStream?.getVideoTracks()?.[0]?.enabled"
-        class="video__poster"
-        :style="{ backgroundColor: localColor }"
-      >
-        <Avatar class="video__poster-avatar h-14 w-14">
-          <AvatarFallback>{{ userName?.[0]?.toUpperCase() || '' }}</AvatarFallback>
-        </Avatar>
-      </div>
-      <video :srcObject="localStream" autoplay muted playsinline></video>
-    </div>
-    <div
-      class="video-container"
-      :class="{ 'video-container--many-remote': !isOneRemoteUser }"
-      v-show="inCall"
-    >
-      <div
-        v-for="(stream, userId) in remoteStreams"
-        :key="userId"
-        class="video video--remote"
-        :class="{ 'remote-video-one': isOneRemoteUser }"
-      >
-        <span v-if="!isOneRemoteUser" class="video__label" >
-          <span class="video__label-text">{{
-          stream.name
-        }}</span>
-          <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
-        </span>
+
+      <div v-show="inCall" class="video local-video" :class="{'is-active-speak': isSpeaking}">
         <div
-          v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isVideoEnabled"
-          class="video__poster"
-          :style="{ backgroundColor: stream.color }"
+            v-if="!localStream?.getVideoTracks()?.[0]?.enabled"
+            class="video__poster"
+            :style="{ backgroundColor: localColor }"
         >
           <Avatar class="video__poster-avatar h-14 w-14">
-            <AvatarFallback>{{ stream.name?.[0]?.toUpperCase() || '' }}</AvatarFallback>
+            <AvatarFallback>{{ userName?.[0]?.toUpperCase() || '' }}</AvatarFallback>
           </Avatar>
         </div>
-        <video
-          :id="'video-' + userId"
-          autoplay
-          playsinline
-          :srcObject="stream.stream"
-        />
+        <video :srcObject="localStream" autoplay muted playsinline></video>
+      </div>
+      <div
+          class="video-container"
+          :class="{ 'video-container--many-remote': !isOneRemoteUser }"
+          v-show="inCall"
+      >
+        <div
+            v-for="(stream, userId) in remoteStreams"
+            :key="userId"
+            class="video video--remote"
+            :class="{ 'remote-video-one': isOneRemoteUser, 'is-active-speak': (roomUsers.find((roomUser) => roomUser.userId === userId)?.isSpeaking && !isOneRemoteUser)}"
+        >
+        <span v-if="!isOneRemoteUser" class="video__label" >
+          <span class="video__label-text">{{
+              stream.name
+            }}</span>
+          <MicOff class="h-4 w-4" v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isAudioEnabled" color="#fff" />
+        </span>
+          <div
+              v-if="!roomUsers.find((roomUser) => roomUser.userId === userId)?.isVideoEnabled"
+              class="video__poster"
+              :style="{ backgroundColor: stream.color }"
+          >
+            <Avatar class="video__poster-avatar h-14 w-14">
+              <AvatarFallback>{{ stream.name?.[0]?.toUpperCase() || '' }}</AvatarFallback>
+            </Avatar>
+          </div>
+          <video
+              :id="'video-' + userId"
+              autoplay
+              playsinline
+              :srcObject="stream.stream"
+          />
 
-        <!--        <div v-if="inCall" class="controls-video-remote">-->
-        <!--          <div @click="toggleRemoteAudio(userId)">-->
-        <!--            <MicOff v-if="remoteAudioMuted[userId]" class="icon" />-->
-        <!--            <Mic v-if="!remoteAudioMuted[userId]" class="icon" />-->
-        <!--          </div>-->
-        <!--        </div>-->
-      </div>
-    </div>
-    <div v-if="inCall" class="controls-video">
-      <div class="controls-video__header">
-        <div @click="toggleLocalVideo" class="icon">
-          <Video v-if="!isLocalVideoMuted" color="#fff" />
-          <VideoOff v-if="isLocalVideoMuted" color="#fff" />
-        </div>
-        <div @click="toggleLocalAudio" class="icon">
-          <MicOff v-if="isLocalAudioMuted" color="#fff" />
-          <Mic v-if="!isLocalAudioMuted" color="#fff" />
-        </div>
-        <div class="icon">
-          <MessageCircle color="#fff" />
-        </div>
-        <div class="icon" @click="toggleDrawer">
-          <UserRoundSearch color="#fff"/>
-        </div>
-        <div @click="leaveCall" class="icon icon--red">
-          <X color="#fff" />
+          <!--        <div v-if="inCall" class="controls-video-remote">-->
+          <!--          <div @click="toggleRemoteAudio(userId)">-->
+          <!--            <MicOff v-if="remoteAudioMuted[userId]" class="icon" />-->
+          <!--            <Mic v-if="!remoteAudioMuted[userId]" class="icon" />-->
+          <!--          </div>-->
+          <!--        </div>-->
         </div>
       </div>
+      <div v-if="inCall" class="controls-video">
+        <div class="controls-video__header">
+          <div @click="toggleLocalVideo" class="icon">
+            <Video v-if="!isLocalVideoMuted" color="#fff" />
+            <VideoOff v-if="isLocalVideoMuted" color="#fff" />
+          </div>
+          <div @click="toggleLocalAudio" class="icon">
+            <MicOff v-if="isLocalAudioMuted" color="#fff" />
+            <Mic v-if="!isLocalAudioMuted" color="#fff" />
+          </div>
+          <div class="icon">
+            <MessageCircle color="#fff" />
+          </div>
+          <div class="icon" @click="toggleDrawer">
+            <UserRoundSearch color="#fff"/>
+          </div>
+          <div @click="leaveCall" class="icon icon--red">
+            <X color="#fff" />
+          </div>
+        </div>
+      </div>
+      <RoomUsersDrawer v-model="isRoomUsersOpen" :users="roomUsers" :admin="admin"/>
     </div>
-    <RoomUsersDrawer v-model="isRoomUsersOpen" :users="roomUsers" :admin="admin"/>
-  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -138,6 +140,7 @@ import { TUser } from "@/entities/User/model/interfaces/IUser";
 import axios from "@/shared/api/api.ts";
 
 
+
 const getRandomBrightColorHex = () => {
   const r = Math.floor(Math.random() * 156) + 100; // Красный: от 100 до 255
   const g = Math.floor(Math.random() * 156) + 100; // Зелёный: от 100 до 255
@@ -163,6 +166,13 @@ let remoteStreams = ref({});
 let remoteAudioMuted = ref({});
 const isNotApprove = ref(false)
 const localColor = ref<string>(getRandomBrightColorHex())
+
+
+
+//звук с микро
+let isSpeaking = ref(false);
+const threshold = 40;
+//
 
 const isRoomUsersOpen = ref(false)
 const inCall = ref(false);
@@ -202,7 +212,78 @@ const startLocalStream = async () => {
       autoGainControl: true,
     },
   });
+
+
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioContext.createAnalyser();
+
+
+  const microphone = audioContext.createMediaStreamSource(localStream.value);
+  microphone.connect(analyser);
+
+
+  analyser.fftSize = 256;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+
+
+
+  const detectSpeaking = () => {
+    analyser.getByteFrequencyData(dataArray);
+
+    let silenceTimeout;
+    const debounceTime = 300;
+
+
+    let sum = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      sum += dataArray[i];
+    }
+
+    const average = sum / bufferLength;
+
+
+    if (average > threshold) {
+      if (!isSpeaking.value) {
+        isSpeaking.value = true;
+
+
+        socket.emit("audioDetect", {
+          isSpeaking: isSpeaking.value,
+          roomId: props.roomId,
+          userId: props.userId,
+        });
+      }
+
+      clearTimeout(silenceTimeout);
+    } else {
+      if (isSpeaking.value) {
+        clearTimeout(silenceTimeout);
+        silenceTimeout = setTimeout(() => {
+          isSpeaking.value = false;
+
+          socket.emit("audioDetect", {
+            isSpeaking: isSpeaking.value,
+            roomId: props.roomId,
+            userId: props.userId,
+          });
+        }, debounceTime);
+      }
+    }
+
+    requestAnimationFrame(detectSpeaking);
+  };
+
+  detectSpeaking();
 };
+
+
+
+const setSpeaking = ({userId, isSpeaking}) => {
+  const user = roomUsers.value.find((roomUser) => roomUser.userId === userId)
+  user.isSpeaking = isSpeaking
+}
 
 const onMessageRecieve = (data) => {
   console.log("revieve", data);
@@ -406,6 +487,8 @@ const requestAcceptToRoom = async () => {
 const joinCall = async () => {
   await startLocalStream().then(() => {
     socket.on('users', onGetUsers)
+
+    socket.on('userSpeak', setSpeaking)
 
     socket.emit("joinRoom2", {
       roomId: props.roomId,

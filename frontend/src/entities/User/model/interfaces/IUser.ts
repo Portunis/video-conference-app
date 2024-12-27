@@ -13,6 +13,7 @@ export type TUser = {
     userId: string;
     isAudioEnabled: boolean;
     isVideoEnabled: boolean;
+    isSpeaking: boolean;
     status: EUserStatus
     user: {
         username: string;
